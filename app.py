@@ -104,14 +104,14 @@ def check_balance(data_dict):
     return filtered_data
 
 # Show date, and summed debits groupped by month, and year(YYYY-MM), returns filtered_data('month', 'debit')
-def check_month_debits(data_dict):
+def check_monthly_values(data_dict, key):
     summed_debits = {}
     for x in range(len(data_dict['Data transakcji'])):
         months = datetime.strptime(data_dict['Data transakcji'][x], "%Y-%m-%d").strftime("%Y-%m")
-        if data_dict['Obciążenia'][x] == "":
+        if data_dict[key][x] == "":
             debits = 0
         else:
-            debits = data_dict['Obciążenia'][x]
+            debits = data_dict[key][x]
 
         if months in summed_debits:
             summed_debits.update({months: summed_debits[months] + debits})
@@ -121,8 +121,9 @@ def check_month_debits(data_dict):
     filtered_data = summed_debits.items()
     return filtered_data
 
-
-
+def round_value(data_list):
+    formatted_list = ['%.2f' % data for data in data_list]
+    return formatted_list
 
 app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
@@ -130,8 +131,12 @@ app = Flask(__name__)
 def hello_world():
     #VARIABLES
     values = [] # Variables sent to html
-    months =[]
+    months_debits = []
     debits = []
+    months_credits = []
+    credits = []
+    monthly_difference = []
+    x = 0
     selected_keys = ["Id","Numer rachunku/karty", "Data transakcji", "Rodzaj transakcji", "Na konto/Z konta",
                      "Odbiorca/Zleceniodawca", "Opis", "Obciążenia", "Uznania", "Saldo", "Waluta"]  # Nazwy kolumn w pliku CSV
     # RUN FUNCTIONS
@@ -139,20 +144,34 @@ def hello_world():
     database_data = show_data()  # All data from database
     database_data_dict =  create_dict_from_list(selected_keys, database_data)
     current_balance = check_balance(database_data_dict)
-    month_debits_data = check_month_debits(database_data_dict)
+    month_debits_data = check_monthly_values(database_data_dict, selected_keys[7])
+    month_credits_data = check_monthly_values(database_data_dict, selected_keys[8])
     last_date_from_db = show_last_date_from_db(database_data_dict)
 
     for data in month_debits_data:
-        months.append(data[0])
+        months_debits.append(data[0])
         debits.append(data[1])
 
-    formatted_debits = ['%.2f' % deb for deb in debits] # Round debits
+    for data in month_credits_data:
+        months_credits.append(data[0])
+        credits.append(data[1])
+
+    for data in credits:
+        monthly_difference.append(data + debits[x])
+        x+=1
+
+    round_difference = round_value(monthly_difference)
+    round_debits = round_value(debits)
+    round_credits = round_value(credits)
 
     # APPEND VALUES
     values.append(last_date_from_db)
     values.append(current_balance)
-    values.append(months)
-    values.append(formatted_debits)
+    values.append(months_debits)
+    values.append(round_debits)
+    values.append(months_credits)
+    values.append(round_credits)
+    values.append(round_difference)
     """
 
     # CREATING PLOTS

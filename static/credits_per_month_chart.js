@@ -1,15 +1,15 @@
-const revesed_months = [] /* to reverse chart */
-for (let i = debits_to_js.length; i >= 0; i--) {
-  revesed_months.push(months_to_js[i]);
+let chart_credits = []
+for(let i = 0; i < credits_to_js.length; i++)
+{
+    chart_credits.push(credits_to_js[i]*1)
 }
-
 const data = {
-            labels: months_to_js, // Miesiące na osi X
+            labels: months_credits_to_js, // Miesiące na osi X
             datasets: [{
-                label: 'Ilość wydanych pieniędzy w poszczególnym miesiącu',
-                data: debits_to_js, // Debety na osi Y
+                label: 'Ilość zyskanych pieniędzy w poszczególnym miesiącu',
+                data: chart_credits, // Debety na osi Y
                 fill: false, // Bez wypełnienia pod wykresem
-                borderColor: 'rgb(75, 192, 192)', // Kolor linii
+                borderColor: 'rgb(48, 183, 39)', // Kolor linii
                 tension: 0.1, // Ustawienie wygładzenia linii
             }]
         };
@@ -35,15 +35,15 @@ const data = {
                 },
                 scales: {
                     y: {
-                        reverse: true,
+
                         beginAtZero: true, // Oś Y zaczyna się od zera
                     },
                     x: {
-                      reverse: true
+                        reverse: true
                     }
                 }
             }
         };
 
         // Renderowanie wykresu
-        new Chart(document.getElementById('LineChart'), config);
+        new Chart(document.getElementById('LineChartCredits'), config);

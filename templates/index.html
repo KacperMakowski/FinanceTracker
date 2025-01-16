@@ -42,16 +42,73 @@
     </form>
     <h1>Saldo:</h1>
     <h2>{{ values[1][0] }} {{ values[1][1] }}</h2>
+
+
     <h1>W poprzednich miesiącach wydano: </h1>
+<div style="width: 800px; margin: 0 auto"><canvas id="LineChartDebits"></canvas></div>
 <div class="table-container">
-    <table border="3">
-        <tr>
+    <table>
+        <tr style="background-color: rgba(182,182,182,0.78)">
             {% for v in values[2] %}
                 <td>{{ v }}</td>
             {% endfor %}
         </tr>
-        <tr>
+        <tr style="background-color: rgba(255,57,57,0.78)">
             {% for v in values[3] %}
+                <td>{{ v }}</td>
+            {% endfor %}
+        </tr>
+    </table>
+</div>
+<h1>W poprzednich miesiącach zyskano: </h1>
+<div style="width: 800px; margin: 0 auto"><canvas id="LineChartCredits"></canvas></div>
+<div class="table-container">
+    <table>
+        <tr style="background-color: rgba(182,182,182,0.78)">
+            {% for v in values[4] %}
+                <td>{{ v }}</td>
+            {% endfor %}
+        </tr>
+        <tr style="background-color: rgba(81,250,65,0.78)">
+            {% for v in values[5] %}
+                <td>{{ v }}</td>
+            {% endfor %}
+        </tr>
+    </table>
+</div>
+<h1>Zestawienie obu wykresów: </h1>
+<div style="width: 800px; margin: 0 auto"><canvas id="LineChartCreditsDebits"></canvas></div>
+<div class="table-container">
+    <table>
+        <tr style="background-color: rgba(182,182,182,0.78)">
+            {% for v in values[2] %}
+                <td>{{ v }}</td>
+            {% endfor %}
+        </tr>
+        <tr style="background-color: rgba(255,57,57,0.78)">
+            {% for v in values[3] %}
+                <td>{{ v }}</td>
+            {% endfor %}
+        </tr>
+        <tr style="background-color: rgba(81,250,65,0.78)">
+            {% for v in values[5] %}
+                <td>{{ v }}</td>
+            {% endfor %}
+        </tr>
+    </table>
+</div>
+
+<h1>Różnica: </h1>
+<div style="width: 800px; margin: 0 auto"><canvas id="LineChartDifference"></canvas></div>
+<div class="table-container">
+    <table>
+        <tr style="background-color: rgba(182,182,182,0.78)">
+            {% for v in values[2] %}
+                <td>{{ v }}</td>
+            {% endfor %}
+        </tr>
+        <tr style="background-color: rgba(81,250,65,0.78)">
+            {% for v in values[6] %}
                 <td>{{ v }}</td>
             {% endfor %}
         </tr>
@@ -60,17 +117,21 @@
 
 v0 DO FRONTU
 </div>
-<div style="width: 800px;"><canvas id="LineChart"></canvas></div>
+
 <script>
     // Send data to JS
     let values_to_js = {{ values | tojson }};
-    let months_to_js = {{ values[2] | tojson }};
+    let months_debits_to_js = {{ values[2] | tojson }};
     let debits_to_js = {{ values[3] | tojson }};
+    let months_credits_to_js = {{ values[4] | tojson }};
+    let credits_to_js = {{ values[5] | tojson }};
+    let monthly_difference = {{ values[6] | tojson}}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<script type="module" src=" {{ url_for('static', filename='debit_per_month_chart.js') }}">
-
-</script>
+<script type="module" src=" {{ url_for('static', filename='debits_per_month_chart.js') }}"></script>
+<script type="module" src=" {{ url_for('static', filename='credits_per_month_chart.js') }}"></script>
+<script type="module" src=" {{ url_for('static', filename='cred_deb_month_chart.js') }}"></script>
+<script type="module" src=" {{ url_for('static', filename='difference_per_month_chart.js') }}"></script>
 
 </body>
 </html>
