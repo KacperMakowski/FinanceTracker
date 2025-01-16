@@ -59,11 +59,18 @@
 </div>
 
 v0 DO FRONTU
-
 </div>
+<div style="width: 800px;"><canvas id="LineChart"></canvas></div>
+<script>
+    // Send data to JS
+    let values_to_js = {{ values | tojson }};
+    let months_to_js = {{ values[2] | tojson }};
+    let debits_to_js = {{ values[3] | tojson }};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script type="module" src=" {{ url_for('static', filename='debit_per_month_chart.js') }}">
 
-<script src=" {{ url_for('static', filename='create_chart.js') }}"></script>
-
+</script>
 
 </body>
 </html>
