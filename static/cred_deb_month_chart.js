@@ -18,6 +18,7 @@ const data = {
                 fill: false, // Bez wypełnienia pod wykresem
                 borderColor: 'rgb(231, 9, 9)', // Kolor linii
                 tension: 0.1, // Ustawienie wygładzenia linii
+                pointRadius: 5,
             },
                 {
                     label: 'Przychody',
@@ -25,6 +26,7 @@ const data = {
                     fill: false, // Bez wypełnienia pod wykresem
                     borderColor: 'rgb(48, 183, 39)', // Kolor linii
                     tension: 0.1, // Ustawienie wygładzenia linii
+                    pointRadius: 5,
                 }]
         };
 
@@ -53,7 +55,7 @@ const data = {
                         beginAtZero: true, // Oś Y zaczyna się od zera
                     },
                     x: {
-
+                        reverse: true
                     }
                 }
             }

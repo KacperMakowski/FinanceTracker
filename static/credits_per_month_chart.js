@@ -10,6 +10,7 @@ const data = {
                 data: chart_credits, // Debety na osi Y
                 fill: false, // Bez wypełnienia pod wykresem
                 borderColor: 'rgb(48, 183, 39)', // Kolor linii
+                pointRadius: 5,
                 tension: 0.1, // Ustawienie wygładzenia linii
             }]
         };
