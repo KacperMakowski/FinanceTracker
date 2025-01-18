@@ -2,6 +2,8 @@ import csv
 import sqlite3
 import io
 from datetime import datetime
+from itertools import count
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -32,6 +34,21 @@ def init_db():
     conn.commit()
     conn.close()
 
+def init_categorised_users_db():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+                    CREATE TABLE IF NOT EXISTS categorised_users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        account_name TEXT,
+                        category TEXT)
+                ''')
+    conn.commit()
+    conn.close()
+
+def save_categories_to_db():
+    pass
+
 # Show data from database
 def show_data():
 
@@ -57,9 +74,9 @@ def create_dict_from_list(keys, first_list):
     return new_dict
 
 # Show last date from database
-def show_last_date_from_db(data_dict):
-    if data_dict['Data transakcji']:
-        filtered_data = datetime.strptime(data_dict['Data transakcji'][0], "%Y-%m-%d")
+def show_last_date_from_db(data_list):
+    if data_list:
+        filtered_data = datetime.strptime(data_list[0], "%Y-%m-%d")
     else:
         filtered_data = datetime.strptime("1900-01-01", "%Y-%m-%d")
 
@@ -98,14 +115,9 @@ def save_csv_to_db(selected_keys, last_date):
         else:
             print("Data already in database")
 
-# To find the newest balance and currency from database_data
-def check_balance(data_dict):
-    filtered_data = [data_dict['Saldo'][0], data_dict['Waluta'][0]]
-    return filtered_data
-
 # Show date, and summed debits groupped by month, and year(YYYY-MM), returns filtered_data('month', 'debit')
 def check_monthly_values(data_dict, key):
-    summed_debits = {}
+    summed = {}
     for x in range(len(data_dict['Data transakcji'])):
         months = datetime.strptime(data_dict['Data transakcji'][x], "%Y-%m-%d").strftime("%Y-%m")
         if data_dict[key][x] == "":
@@ -113,22 +125,33 @@ def check_monthly_values(data_dict, key):
         else:
             debits = data_dict[key][x]
 
-        if months in summed_debits:
-            summed_debits.update({months: summed_debits[months] + debits})
+        if months in summed:
+            summed.update({months: summed[months] + debits})
         else:
-            summed_debits.update({months: debits})
+            summed.update({months: debits})
 
-    filtered_data = summed_debits.items()
+    filtered_data = summed.items()
     return filtered_data
 
 def round_value(data_list):
     formatted_list = ['%.2f' % data for data in data_list]
     return formatted_list
 
+# Read data and show all users one time
+def show_all_users(data_list):
+    filtered_list = []
+    for data in data_list:
+        if data not in filtered_list and data != '':
+            filtered_list.append(data)
+
+    return filtered_list
+
+
+
 app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 
-def hello_world():
+def main_site():
     #VARIABLES
     values = [] # Variables sent to html
     months_debits = []
@@ -139,14 +162,17 @@ def hello_world():
     x = 0
     selected_keys = ["Id","Numer rachunku/karty", "Data transakcji", "Rodzaj transakcji", "Na konto/Z konta",
                      "Odbiorca/Zleceniodawca", "Opis", "Obciążenia", "Uznania", "Saldo", "Waluta"]  # Nazwy kolumn w pliku CSV
+
     # RUN FUNCTIONS
     init_db()
     database_data = show_data()  # All data from database
     database_data_dict =  create_dict_from_list(selected_keys, database_data)
-    current_balance = check_balance(database_data_dict)
     month_debits_data = check_monthly_values(database_data_dict, selected_keys[7])
     month_credits_data = check_monthly_values(database_data_dict, selected_keys[8])
-    last_date_from_db = show_last_date_from_db(database_data_dict)
+    last_date_from_db = show_last_date_from_db(database_data_dict[selected_keys[2]])
+    users_data = show_all_users(database_data_dict[selected_keys[5]])
+
+    current_balance = [database_data_dict['Saldo'][0], database_data_dict['Waluta'][0]]
 
     for data in month_debits_data:
         months_debits.append(data[0])
@@ -160,6 +186,7 @@ def hello_world():
         monthly_difference.append(data + debits[x])
         x+=1
 
+
     round_difference = round_value(monthly_difference)
     round_debits = round_value(debits)
     round_credits = round_value(credits)
@@ -172,49 +199,45 @@ def hello_world():
     values.append(months_credits)
     values.append(round_credits)
     values.append(round_difference)
-    """
+    values.append(users_data)
 
-    # CREATING PLOTS
-    plt.plot(months, debits, color='g', marker='o', ms=5)
-    plt.title("Wydatki na każdy miesiąc")
-    plt.xlabel("Miesiąc")
-    plt.ylabel("Wydatki")
-    yticks = np.arange(-8000, 0, 500)
-    plt.yticks(yticks)
-    plt.gca().invert_yaxis()
-    plt.xticks(rotation=45, fontsize=8)
-    plt.xticks(months[::2])
-    plt.grid()
-    #plt.show()
-"""
     # Actions after pressing button in html
     if request.method == "POST": # If user pressed button check if he chooses file
-        save_csv_to_db(selected_keys, last_date_from_db)
-
+        if 'save_csv' in request.form:
+            save_csv_to_db(selected_keys, last_date_from_db)
+        elif 'to_categories' in request.form:
+            return redirect(url_for('categories_site'))
 
     return render_template("index.html", values=values)
 
+@app.route('/categories', methods=['GET', 'POST'])
+def categories_site():
+    values = []
+    selected_keys = ["Id", "Numer rachunku/karty", "Data transakcji", "Rodzaj transakcji", "Na konto/Z konta",
+                     "Odbiorca/Zleceniodawca", "Opis", "Obciążenia", "Uznania", "Saldo",
+                     "Waluta"]  # Nazwy kolumn w pliku CSV
+    categorised_users = []
+    init_db()
+    init_categorised_users_db()
+    database_data = show_data()
+    database_data_dict = create_dict_from_list(selected_keys, database_data)
+    uncategorised_users = show_all_users(database_data_dict[selected_keys[5]])
+
+    values.append(uncategorised_users)
+
+    if request.method == "POST":
+        categories = {}
+        for key, value in request.form.items():
+            if key[-1] == '1':
+                key = key[:-1]
+                if key not in categories and value != '' and value != 'Zapisz kategorie':
+                    categories[key] = value
+            else:
+                if value != '' and value != 'Zapisz kategorie':
+                    categories[key] = value
+        print(categories)
+    return render_template("add_categories.html", values=values)
 
 
 if __name__ == '__main__':
     app.run(debug=True)
-"""
-        account_numbers = []
-        transaction_dates = []
-        type_of_transactions = []
-        from_accounts = []
-        recievers = []
-        for data in csv_reader:
-            if data['Uznania'] == "":
-                print(data)
-                account_numbers.append(data['Numer rachunku/karty'])
-                transaction_dates.append(data['Data transakcji'])
-                type_of_transactions.append(data['Rodzaj transakcji'])
-                if data["Na konto/Z konta"] == "":
-                    from_accounts.append(data['Numer rachunku/karty'])
-                else:
-                    from_accounts.append(data['Na konto/Z konta'])
-
-            else :
-                pass
-                """

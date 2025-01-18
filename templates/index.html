@@ -37,7 +37,7 @@
     <form action="/" method="post" enctype="multipart/form-data">
         <label>
             <input type="file" name="file" id="file" accept=".csv"/>
-            <input type="submit" value="Wybierz" id = "button"/>
+            <input type="submit" value="Wybierz" id = "save_csv" name="save_csv"/>
         </label>
     </form>
     <h1>Saldo:</h1>
@@ -73,14 +73,23 @@
             {% for v in values[2] %}
                 <td>{{ v }}</td>
             {% endfor %}
-        </tr>
-        <tr style="background-color: rgba(81,250,65,0.78)">
-            {% for v in values[6] %}
-                <td>{{ v }}</td>
-            {% endfor %}
-        </tr>
+            </tr>
+                <tr>
+                {% for v in values[6] %}
+                    {% if v[0] == '-' %}
+                        <td style="background-color: rgba(255,57,57,0.78)">{{ v }}</td>
+                    {% endif %}
+                    {% if v[0] != '-' %}
+                        <td style="background-color: rgba(81,250,65,0.78)">{{ v }}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
     </table>
 </div>
+<h2>Przejdz na strone, aby dodać tagi dla użytkowników</h2>
+<form action="/categories" method="post">
+        <input type="submit" value="Przejdź" id = "to_categories" name="to_categories"/>
+    </form>
 
 v0 DO FRONTU
 </div>

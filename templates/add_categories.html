@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>FinanceTracker</title>
+</head>
+<body>
+<h1>Wybierz kategorie dla danego odbiorcy:</h1>
+{% for value in values  %}
+    {% for v in value %}
+        <p>{{v}}</p>
+            <form method="post" name="categories" id="categories">
+                <select id="{{ v }}_category" name="{{ v }}_category">
+                    <option></option>
+                    <option>Mieszkanie</option>
+                    <option>Transport</option>
+                    <option>Żywność</option>
+                    <option>Rozrywka i rekreacja</option>
+                    <option>Oszczędności</option>
+                </select>
+                lub wpisz własną kategorię:
+            <input type="text" id="{{ v }}_category1" name="{{ v }}_category1">
+
+    {% endfor %}
+    <p>
+    <input type="submit" id="save_categories" name="save_categories" value="Zapisz kategorie">
+    </p>
+    </form>
+    <br>
+{% endfor %}
+</body>
+</html>
