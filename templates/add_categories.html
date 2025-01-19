@@ -5,21 +5,29 @@
     <title>FinanceTracker</title>
 </head>
 <body>
+<h1>Edytuj kategorię dla istniejących użytkowników</h1>
 <h1>Wybierz kategorie dla danego odbiorcy:</h1>
+{% if values == [[]] %}
+    <p>Przyznano kategorię wszystkim użytkownikom</p>
+{% endif %}
+{% if values != [[]] %}
 {% for value in values  %}
     {% for v in value %}
         <p>{{v}}</p>
             <form method="post" name="categories" id="categories">
-                <select id="{{ v }}_category" name="{{ v }}_category">
+                <select id="{{ v }}" name="{{ v }}">
                     <option></option>
                     <option>Mieszkanie</option>
+                    <option>Usługi stałe</option>
                     <option>Transport</option>
                     <option>Żywność</option>
+                    <option>Chemia</option>
+                    <option>Leczenie</option>
                     <option>Rozrywka i rekreacja</option>
                     <option>Oszczędności</option>
                 </select>
                 lub wpisz własną kategorię:
-            <input type="text" id="{{ v }}_category1" name="{{ v }}_category1">
+            <input type="text" id="{{ v }}1" name="{{ v }}1">
 
     {% endfor %}
     <p>
@@ -28,5 +36,7 @@
     </form>
     <br>
 {% endfor %}
+{% endif %}
+
 </body>
 </html>

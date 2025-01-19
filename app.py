@@ -35,6 +35,7 @@ def init_db():
     conn.close()
 
 def init_categorised_users_db():
+    print("Categorised users database created")
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     cursor.execute('''
@@ -46,8 +47,16 @@ def init_categorised_users_db():
     conn.commit()
     conn.close()
 
-def save_categories_to_db():
-    pass
+def save_categories_to_db(account_name, category):
+    con = sqlite3.connect('database.db')
+    cur = con.cursor()
+    cur.execute("SELECT account_name FROM categorised_users")
+    users = cur.fetchall()
+    for i in range(len(account_name)):
+        if account_name not in users:
+            cur.execute("INSERT INTO categorised_users VALUES (NULL, ?, ?)", (account_name[i], category[i]))
+            con.commit()
+    con.close()
 
 # Show data from database
 def show_data():
@@ -146,6 +155,12 @@ def show_all_users(data_list):
 
     return filtered_list
 
+def show_categorised_users():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM categorised_users")
+    data = cursor.fetchall()
+    return data
 
 
 app = Flask(__name__)
@@ -216,12 +231,23 @@ def categories_site():
     selected_keys = ["Id", "Numer rachunku/karty", "Data transakcji", "Rodzaj transakcji", "Na konto/Z konta",
                      "Odbiorca/Zleceniodawca", "Opis", "Obciążenia", "Uznania", "Saldo",
                      "Waluta"]  # Nazwy kolumn w pliku CSV
-    categorised_users = []
     init_db()
     init_categorised_users_db()
     database_data = show_data()
     database_data_dict = create_dict_from_list(selected_keys, database_data)
-    uncategorised_users = show_all_users(database_data_dict[selected_keys[5]])
+    categorised_users_data = show_categorised_users()
+    all_users = show_all_users(database_data_dict[selected_keys[5]])
+    categorised_users = []
+    categorised_users_category = []
+    uncategorised_users = []
+
+    for user in categorised_users_data:
+        categorised_users.append(user[1])
+        categorised_users_category.append(user[2])
+
+    for user in all_users:
+        if user not in categorised_users:
+            uncategorised_users.append(user)
 
     values.append(uncategorised_users)
 
@@ -230,12 +256,14 @@ def categories_site():
         for key, value in request.form.items():
             if key[-1] == '1':
                 key = key[:-1]
-                if key not in categories and value != '' and value != 'Zapisz kategorie':
+                if key not in categories and value != '' and value != 'Zapisz kategorie' and value != 'Przejdź':
                     categories[key] = value
             else:
-                if value != '' and value != 'Zapisz kategorie':
+                if value != '' and value != 'Zapisz kategorie' and value != 'Przejdź':
                     categories[key] = value
-        print(categories)
+
+        save_categories_to_db(list(categories.keys()), list(categories.values()))
+
     return render_template("add_categories.html", values=values)
 
 
