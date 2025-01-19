@@ -2,10 +2,22 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>FinanceTracker</title>
+    <title>FinanceTracker | Dodaj kategorie</title>
 </head>
 <body>
-<h1>Edytuj kategorię dla istniejących użytkowników</h1>
+<h1>Wróć do strony głównej
+<form action="/" method="post">
+    <input type="submit" value="Wróć" id = "to_main_site" name="to_main_site"/>
+</form>
+</h1>
+<h1>lub</h1>
+<h1>Edytuj kategorię dla istniejących użytkowników
+<form action="/edit_categories" method="post">
+    <input type="submit" value="Przejdź" id = "to_edit_categories" name="to_edit_categories"/>
+</form>
+</h1>
+
+
 <h1>Wybierz kategorie dla danego odbiorcy:</h1>
 {% if values == [[]] %}
     <p>Przyznano kategorię wszystkim użytkownikom</p>
@@ -13,7 +25,7 @@
 {% if values != [[]] %}
 {% for value in values  %}
     {% for v in value %}
-        <p>{{v}}</p>
+        {{v}}
             <form method="post" name="categories" id="categories">
                 <select id="{{ v }}" name="{{ v }}">
                     <option></option>

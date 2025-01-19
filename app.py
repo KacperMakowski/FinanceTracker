@@ -162,6 +162,14 @@ def show_categorised_users():
     data = cursor.fetchall()
     return data
 
+def save_changed_categories(account_name, category):
+    con = sqlite3.connect('database.db')
+    cur = con.cursor()
+    for account_name, category in zip(account_name, category):
+        cur.execute("UPDATE categorised_users SET category = ? WHERE account_name = ?", (category, account_name))
+    con.commit()
+    con.close()
+
 
 app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
@@ -252,20 +260,49 @@ def categories_site():
     values.append(uncategorised_users)
 
     if request.method == "POST":
-        categories = {}
-        for key, value in request.form.items():
-            if key[-1] == '1':
-                key = key[:-1]
-                if key not in categories and value != '' and value != 'Zapisz kategorie' and value != 'Przejdź':
-                    categories[key] = value
-            else:
-                if value != '' and value != 'Zapisz kategorie' and value != 'Przejdź':
-                    categories[key] = value
+        if 'save_categories' in request.form:
+            categories = {}
+            for key, value in request.form.items():
+                if key[-1] == '1':
+                    key = key[:-1]
+                    if key not in categories and value != '' and value != 'Zapisz kategorie' and value != 'Przejdź':
+                        categories[key] = value
+                else:
+                    if value != '' and value != 'Zapisz kategorie' and value != 'Przejdź':
+                        categories[key] = value
+            save_categories_to_db(list(categories.keys()), list(categories.values()))
+        elif 'to_edit_categories' in request.form:
+            return redirect(url_for('edit_categories_site'))
+        elif 'to_main_site' in request.form:
+            return redirect(url_for('main_site'))
 
-        save_categories_to_db(list(categories.keys()), list(categories.values()))
 
     return render_template("add_categories.html", values=values)
 
+@app.route('/edit_categories', methods=['GET', 'POST'])
+def edit_categories_site():
+    values = []
+    categorised_users_data = show_categorised_users()
+    values.append(categorised_users_data)
+    categorised_users_data.sort(key=lambda x: x[1])
+    if request.method == "POST":
+        if 'to_main_site' in request.form:
+            return redirect(url_for('main_site'))
+        if 'save_changes' in request.form:
+            categories = {}
+            for key, value in request.form.items():
+                if key[-1] == '1':
+                    key = key[:-1]
+                    if key not in categories and value != '' and value != 'Zapisz kategorie' and value != 'Przejdź':
+                        categories[key] = value
+                else:
+                    if value != '' and value != 'Zapisz kategorie' and value != 'Przejdź':
+                        categories[key] = value
+            save_changed_categories(list(categories.keys()), list(categories.values()))
+            print("Zmiany zapisane do bazy danych!")
+
+
+    return render_template("edit_categories.html", values=values)
 
 if __name__ == '__main__':
     app.run(debug=True)
