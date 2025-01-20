@@ -3,6 +3,7 @@ import sqlite3
 import io
 from datetime import datetime
 from itertools import count
+from collections import defaultdict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -147,7 +148,7 @@ def round_value(data_list):
     return formatted_list
 
 # Read data and show all users one time
-def show_all_users(data_list):
+def show_all_users_once(data_list):
     filtered_list = []
     for data in data_list:
         if data not in filtered_list and data != '':
@@ -183,6 +184,7 @@ def main_site():
     credits = []
     monthly_difference = []
     x = 0
+    d = defaultdict(float)
     selected_keys = ["Id","Numer rachunku/karty", "Data transakcji", "Rodzaj transakcji", "Na konto/Z konta",
                      "Odbiorca/Zleceniodawca", "Opis", "Obciążenia", "Uznania", "Saldo", "Waluta"]  # Nazwy kolumn w pliku CSV
 
@@ -193,9 +195,33 @@ def main_site():
     month_debits_data = check_monthly_values(database_data_dict, selected_keys[7])
     month_credits_data = check_monthly_values(database_data_dict, selected_keys[8])
     last_date_from_db = show_last_date_from_db(database_data_dict[selected_keys[2]])
-    users_data = show_all_users(database_data_dict[selected_keys[5]])
+    usernames_data = show_all_users_once(database_data_dict[selected_keys[5]])
+    categorised_users = show_categorised_users()
+    category_debits = {}
+
+    recipient_to_category = {}
+    for _, recipient, category in categorised_users:
+        recipient_to_category[recipient] = category
+
+    for i in range(len(database_data_dict["Odbiorca/Zleceniodawca"])):
+        recipient = database_data_dict["Odbiorca/Zleceniodawca"][i]
+        amount = database_data_dict["Obciążenia"][i]
+        if recipient not in recipient_to_category and recipient != '':
+            category = recipient_to_category[recipient]
+            if category in category_debits:
+                category_debits[category] += amount
+                print(category_debits[category])
+                print(amount)
+            else:
+                category_debits[category] = amount
+
+
+    print(category_debits)
+
 
     current_balance = [database_data_dict['Saldo'][0], database_data_dict['Waluta'][0]]
+
+
 
     for data in month_debits_data:
         months_debits.append(data[0])
@@ -222,7 +248,8 @@ def main_site():
     values.append(months_credits)
     values.append(round_credits)
     values.append(round_difference)
-    values.append(users_data)
+    values.append(usernames_data)
+    values.append(categorised_users)
 
     # Actions after pressing button in html
     if request.method == "POST": # If user pressed button check if he chooses file

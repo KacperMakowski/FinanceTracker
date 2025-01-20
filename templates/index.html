@@ -86,6 +86,20 @@
             </tr>
     </table>
 </div>
+<h1>Pieniądze wydane na daną kategorię: </h1>
+<div style="width: 800px; margin: 0 auto"><canvas id="DougnutCharCategories"></canvas></div>
+<div class="table-container">
+    <table>
+        <tr style="background-color: rgba(182,182,182,0.78)">
+
+            </tr>
+                <tr>
+                {% for v in values[8] %}
+                    {{ v[1] }} {{ v[2] }}
+                {% endfor %}
+            </tr>
+    </table>
+</div>
 <h2>Przejdz na strone, aby dodać tagi dla użytkowników</h2>
 <form action="/categories" method="post">
         <input type="submit" value="Przejdź" id = "to_categories" name="to_categories"/>
@@ -102,6 +116,8 @@ v0 DO FRONTU
     let months_credits_to_js = {{ values[4] | tojson }};
     let credits_to_js = {{ values[5] | tojson }};
     let monthly_difference = {{ values[6] | tojson}}
+    let users = {{ values[8][1] | tojson}}
+    let categories_names = {{ values[8][2] | tojson}}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script type="module" src=" {{ url_for('static', filename='cred_deb_month_chart.js') }}"></script>
