@@ -94,9 +94,6 @@
 
             </tr>
                 <tr>
-                {% for v in values[8] %}
-                    {{ v[1] }} {{ v[2] }}
-                {% endfor %}
             </tr>
     </table>
 </div>
@@ -118,10 +115,12 @@ v0 DO FRONTU
     let monthly_difference = {{ values[6] | tojson}}
     let users = {{ values[8][1] | tojson}}
     let categories_names = {{ values[8][2] | tojson}}
+    let summed_categories = {{ values[9] | tojson}}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script type="module" src=" {{ url_for('static', filename='cred_deb_month_chart.js') }}"></script>
 <script type="module" src=" {{ url_for('static', filename='difference_per_month_chart.js') }}"></script>
+<script type="module" src=" {{ url_for('static', filename='category_chart.js') }}"></script>
 
 </body>
 </html>
