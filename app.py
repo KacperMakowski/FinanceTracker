@@ -12,7 +12,7 @@ from flask import Flask, render_template, redirect, request, url_for, session
 
 # FUNCTIONS
 
-# Create database if not exist
+# Create table data if not exist
 def init_db():
 
     conn = sqlite3.connect('database.db')
@@ -34,6 +34,7 @@ def init_db():
     conn.commit()
     conn.close()
 
+# Create table categorised_users if not exist
 def init_categorised_users_db():
     print("Categorised users database created")
     conn = sqlite3.connect('database.db')
@@ -47,6 +48,39 @@ def init_categorised_users_db():
     conn.commit()
     conn.close()
 
+""" 
+1. Check if user choose file then read file from post method and saves it in list
+2. Read last row from list which contains the oldest date
+3. Compare first date from new CSV file, with last date from database, and if file is newer save new file to database
+"""
+def save_csv_to_db(keys, last_date):
+    con = sqlite3.connect('database.db')
+    cur = con.cursor()
+    file = request.files['file']
+    last_date = datetime.strptime(last_date, '%Y-%m-%d')
+    if file.filename == '':
+        print("No file selected")
+        values = ["BRAK"]
+    else:
+        stream = io.StringIO(file.stream.read().decode("utf-8-sig"))  # "utf-8-sig" to decode first column name
+        csv_reader = csv.DictReader(stream)
+        rows = list(csv_reader)
+        last_row = rows[-1]  # Find last row from CSV file (it contains oldest date)
+        first_date = datetime.strptime(last_row['Data transakcji'], "%Y-%m-%d")  # Make date from string
+        # If the oldest date from CSV is newer than the newest from database save CSV to db #
+        if first_date > last_date:
+            filtered_data = [
+                tuple(row[key] if key in row else "" for key in keys)
+                for row in rows
+            ]
+            cur.executemany("INSERT INTO data VALUES (NULL,?,?,?,?,?,?,?,?,?,?)", filtered_data)
+            con.commit()
+            con.close()
+            print("Data successfully added to the database")
+        else:
+            print("Data already in database")
+
+# Saves users categories in db (categorised_users)
 def save_categories_to_db(account_name, category):
     con = sqlite3.connect('database.db')
     cur = con.cursor()
@@ -91,39 +125,6 @@ def show_last_date_from_db(data_list):
 
     return filtered_data.strftime("%Y-%m-%d")
 
-# Read CSV file and save data to database
-""" 
-1. Check if user choose file then read file from post method and saves it in list
-2. Read last row from list which contains the oldest date
-3. Compare first date from new CSV file, with last date from database, and if file is newer save new file to database
-"""
-def save_csv_to_db(selected_keys, last_date):
-    con = sqlite3.connect('database.db')
-    cur = con.cursor()
-    file = request.files['file']
-    last_date = datetime.strptime(last_date, '%Y-%m-%d')
-    if file.filename == '':
-        print("No file selected")
-        values = ["BRAK"]
-    else:
-        stream = io.StringIO(file.stream.read().decode("utf-8-sig"))  # "utf-8-sig" to decode first column name
-        csv_reader = csv.DictReader(stream)
-        rows = list(csv_reader)
-        last_row = rows[-1]  # Find last row from CSV file (it contains oldest date)
-        first_date = datetime.strptime(last_row['Data transakcji'], "%Y-%m-%d")  # Make date from string
-        # If the oldest date from CSV is newer than the newest from database save CSV to db #
-        if first_date > last_date:
-            filtered_data = [
-                tuple(row[key] if key in row else "" for key in selected_keys)
-                for row in rows
-            ]
-            cur.executemany("INSERT INTO data VALUES (NULL,?,?,?,?,?,?,?,?,?,?)", filtered_data)
-            con.commit()
-            con.close()
-            print("Data successfully added to the database")
-        else:
-            print("Data already in database")
-
 # Show date, and summed debits groupped by month, and year(YYYY-MM), returns filtered_data('month', 'debit')
 def check_monthly_values(data_dict, key):
     summed = {}
@@ -143,8 +144,10 @@ def check_monthly_values(data_dict, key):
     return filtered_data
 
 def round_value(data_list):
-    formatted_list = ['%.2f' % data for data in data_list]
-    return formatted_list
+    for i in range(len(data_list)):
+        data_list[i] = round(data_list[i], 2)
+
+    return data_list
 
 # Read data and show all users one time
 def show_all_users_once(data_list):
@@ -155,6 +158,7 @@ def show_all_users_once(data_list):
 
     return filtered_list
 
+# Shows users, their id's and categories
 def show_categorised_users():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
@@ -162,6 +166,7 @@ def show_categorised_users():
     data = cursor.fetchall()
     return data
 
+# Save new categories in db
 def save_changed_categories(account_name, category):
     con = sqlite3.connect('database.db')
     cur = con.cursor()
@@ -170,40 +175,15 @@ def save_changed_categories(account_name, category):
     con.commit()
     con.close()
 
-
-app = Flask(__name__)
-@app.route('/', methods=['GET', 'POST'])
-
-def main_site():
-    #VARIABLES
-    values = [] # Variables sent to html
-    months_debits = []
-    debits = []
-    months_credits = []
-    credits = []
-    monthly_difference = []
-    x = 0
-    selected_keys = ["Id","Numer rachunku/karty", "Data transakcji", "Rodzaj transakcji", "Na konto/Z konta",
-                     "Odbiorca/Zleceniodawca", "Opis", "Obciążenia", "Uznania", "Saldo", "Waluta"]  # Nazwy kolumn w pliku CSV
-
-    # RUN FUNCTIONS
-    init_db()
-    database_data = show_data()  # All data from database
-    database_data_dict =  create_dict_from_list(selected_keys, database_data)
-    month_debits_data = check_monthly_values(database_data_dict, selected_keys[7])
-    month_credits_data = check_monthly_values(database_data_dict, selected_keys[8])
-    last_date_from_db = show_last_date_from_db(database_data_dict[selected_keys[2]])
-    usernames_data = show_all_users_once(database_data_dict[selected_keys[5]])
-    categorised_users = show_categorised_users()
+def debits_for_categories(keys, data, users):
     category_debits = []
     summed_category_debits = []
-
-    for i in range(len(database_data_dict["Odbiorca/Zleceniodawca"])):
-        for category in categorised_users:
-            if database_data_dict["Odbiorca/Zleceniodawca"][i] in category:
+    for i in range(len(data[keys[5]])):
+        for category in users:
+            if data[keys[5]][i] in category:
                 category_debits.append([
                     category[1],
-                    database_data_dict["Obciążenia"][i],
+                    data[keys[7]][i],
                     category[2]
                 ])
 
@@ -222,8 +202,38 @@ def main_site():
     for i in range(len(summed_category_debits)):
         summed_category_debits[i][1] = round(summed_category_debits[i][1], 2)*-1
 
-    current_balance = [database_data_dict['Saldo'][0], database_data_dict['Waluta'][0]]
+    return summed_category_debits
 
+app = Flask(__name__)
+@app.route('/', methods=['GET', 'POST'])
+
+def main_site():
+    #VARIABLES
+    values = [] # Variables sent to html
+    months_debits = []
+    debits = []
+    months_credits = []
+    credits = []
+    monthly_difference = []
+    x = 0
+    keys = ["Id","Numer rachunku/karty", "Data transakcji", "Rodzaj transakcji", "Na konto/Z konta",
+                     "Odbiorca/Zleceniodawca", "Opis", "Obciążenia", "Uznania", "Saldo", "Waluta"]  # Nazwy kolumn w pliku CSV
+
+    # RUN FUNCTIONS
+    init_db()
+    database_data = show_data()  # All data from database
+    database_data_dict =  create_dict_from_list(keys, database_data)
+    month_debits_data = check_monthly_values(database_data_dict, keys[7])
+    month_credits_data = check_monthly_values(database_data_dict, keys[8])
+    last_date_from_db = show_last_date_from_db(database_data_dict[keys[2]])
+    usernames_data = show_all_users_once(database_data_dict[keys[5]])
+    categorised_users = show_categorised_users()
+
+    summed_category_debits = debits_for_categories(keys, database_data_dict, categorised_users)
+
+    current_balance = [database_data_dict[keys[9]][0], database_data_dict[keys[10]][0]]
+
+    # Split one list into two lists
     for data in month_debits_data:
         months_debits.append(data[0])
         debits.append(data[1])
@@ -232,6 +242,7 @@ def main_site():
         months_credits.append(data[0])
         credits.append(data[1])
 
+    # Sums difference
     for data in credits:
         monthly_difference.append(data + debits[x])
         x+=1
@@ -254,9 +265,9 @@ def main_site():
     values.append(summed_category_debits)
 
     # Actions after pressing button in html
-    if request.method == "POST": # If user pressed button check if he chooses file
+    if request.method == "POST": # If user pressed button check and chooses file
         if 'save_csv' in request.form:
-            save_csv_to_db(selected_keys, last_date_from_db)
+            save_csv_to_db(keys, last_date_from_db)
         elif 'to_categories' in request.form:
             return redirect(url_for('categories_site'))
 
@@ -265,15 +276,15 @@ def main_site():
 @app.route('/categories', methods=['GET', 'POST'])
 def categories_site():
     values = []
-    selected_keys = ["Id", "Numer rachunku/karty", "Data transakcji", "Rodzaj transakcji", "Na konto/Z konta",
+    keys = ["Id", "Numer rachunku/karty", "Data transakcji", "Rodzaj transakcji", "Na konto/Z konta",
                      "Odbiorca/Zleceniodawca", "Opis", "Obciążenia", "Uznania", "Saldo",
                      "Waluta"]  # Nazwy kolumn w pliku CSV
     init_db()
     init_categorised_users_db()
     database_data = show_data()
-    database_data_dict = create_dict_from_list(selected_keys, database_data)
+    database_data_dict = create_dict_from_list(keys, database_data)
     categorised_users_data = show_categorised_users()
-    all_users = show_all_users_once(database_data_dict[selected_keys[5]])
+    all_users = show_all_users_once(database_data_dict[keys[5]])
     categorised_users = []
     categorised_users_category = []
     uncategorised_users = []
@@ -312,8 +323,10 @@ def categories_site():
 def edit_categories_site():
     values = []
     categorised_users_data = show_categorised_users()
-    values.append(categorised_users_data)
     categorised_users_data.sort(key=lambda x: x[1])
+
+    values.append(categorised_users_data)
+
     if request.method == "POST":
         if 'to_main_site' in request.form:
             return redirect(url_for('main_site'))
