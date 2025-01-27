@@ -143,6 +143,21 @@ def check_monthly_values(data_dict, key):
     filtered_data = summed.items()
     return filtered_data
 
+def check_montly_categories(keys, data, users):
+    summed_category_debits = []
+    months = {}
+    print(users)
+    for i in range(len(data[keys[0]])):
+        data[keys[2]][i] = datetime.strptime(data[keys[2]][i], "%Y-%m-%d").strftime("%Y-%m")
+        if data[keys[2]][i] in months:
+            pass
+        else:
+            months[data[keys[2]][i]] = [[data[keys[7]][i]],["B"]]
+    print(months)
+
+
+
+
 def round_value(data_list):
     for i in range(len(data_list)):
         data_list[i] = round(data_list[i], 2)
@@ -186,6 +201,7 @@ def debits_for_categories(keys, data, users):
                     data[keys[7]][i],
                     category[2]
                 ])
+    print(category_debits)
 
     for category in category_debits:
         if not any(category[2] == sublist[0] for sublist in summed_category_debits) and category[1] != '' and category[1] < 0:
@@ -228,8 +244,8 @@ def main_site():
     last_date_from_db = show_last_date_from_db(database_data_dict[keys[2]])
     usernames_data = show_all_users_once(database_data_dict[keys[5]])
     categorised_users = show_categorised_users()
-
     summed_category_debits = debits_for_categories(keys, database_data_dict, categorised_users)
+    montly_categories = check_montly_categories(keys, database_data_dict, categorised_users)
 
     current_balance = [database_data_dict[keys[9]][0], database_data_dict[keys[10]][0]]
 
