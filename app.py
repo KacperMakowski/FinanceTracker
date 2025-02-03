@@ -146,14 +146,12 @@ def check_monthly_values(data_dict, key):
 def check_montly_categories(keys, data, users):
     summed_category_debits = []
     months = {}
-    print(users)
     for i in range(len(data[keys[0]])):
         data[keys[2]][i] = datetime.strptime(data[keys[2]][i], "%Y-%m-%d").strftime("%Y-%m")
         if data[keys[2]][i] in months:
             pass
         else:
             months[data[keys[2]][i]] = [[data[keys[7]][i]],["B"]]
-    print(months)
 
 
 
@@ -190,6 +188,7 @@ def save_changed_categories(account_name, category):
     con.commit()
     con.close()
 
+
 def debits_for_categories(keys, data, users):
     category_debits = []
     summed_category_debits = []
@@ -201,7 +200,6 @@ def debits_for_categories(keys, data, users):
                     data[keys[7]][i],
                     category[2]
                 ])
-    print(category_debits)
 
     for category in category_debits:
         if not any(category[2] == sublist[0] for sublist in summed_category_debits) and category[1] != '' and category[1] < 0:
@@ -219,6 +217,23 @@ def debits_for_categories(keys, data, users):
         summed_category_debits[i][1] = round(summed_category_debits[i][1], 2)*-1
 
     return summed_category_debits
+
+def merge_data_lists(keys, data, users):
+    category_debits = []
+    for i in range(len(data[keys[5]])):
+        for category in users:
+            if data[keys[5]][i] in category:
+                for d in range(len(keys)):
+                    category_debits.append([
+                        keys[d],
+                        data[keys[d]][i]
+                    ])
+                category_debits.append([
+                    "Kategoria",
+                    category[2]
+                ])
+    for r in category_debits:
+        print(r)
 
 app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
@@ -246,6 +261,7 @@ def main_site():
     categorised_users = show_categorised_users()
     summed_category_debits = debits_for_categories(keys, database_data_dict, categorised_users)
     montly_categories = check_montly_categories(keys, database_data_dict, categorised_users)
+    merge_data_lists(keys, database_data_dict, categorised_users)
 
     current_balance = [database_data_dict[keys[9]][0], database_data_dict[keys[10]][0]]
 
