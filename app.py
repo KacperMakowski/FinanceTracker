@@ -1,3 +1,4 @@
+#DLACZEGO OSTATNI WYKRES POKAZUJE ZLE DANE
 import csv
 import sqlite3
 import io
@@ -143,17 +144,29 @@ def check_monthly_values(data_dict, key):
     filtered_data = summed.items()
     return filtered_data
 
-def check_montly_categories(keys, data, users):
+
+def check_montly_categories(data):
     summed_category_debits = []
     months = {}
-    for i in range(len(data[keys[0]])):
-        data[keys[2]][i] = datetime.strptime(data[keys[2]][i], "%Y-%m-%d").strftime("%Y-%m")
-        if data[keys[2]][i] in months:
-            pass
+
+    for i in range(len(data)):
+        month = datetime.strptime(data[i][2], "%Y-%m-%d").strftime("%Y-%m")
+        category = data[i][11]
+        if data[i][7] == "":
+            amount = 0
         else:
-            months[data[keys[2]][i]] = [[data[keys[7]][i]],["B"]]
+            amount = float(data[i][7])
+        key = (month, category)
 
+        if key in months:
+            months[key] += amount
+        else:
+            months[key] = amount
 
+    for (month, category), total_amount in months.items():
+        summed_category_debits.append([month, category, round(total_amount, 2)])
+    print(summed_category_debits)
+    return summed_category_debits
 
 
 def round_value(data_list):
@@ -221,19 +234,21 @@ def debits_for_categories(keys, data, users):
 def merge_data_lists(keys, data, users):
     category_debits = []
     for i in range(len(data[keys[5]])):
+        current_category = None
+
         for category in users:
             if data[keys[5]][i] in category:
-                for d in range(len(keys)):
-                    category_debits.append([
-                        keys[d],
-                        data[keys[d]][i]
-                    ])
-                category_debits.append([
-                    "Kategoria",
-                    category[2]
-                ])
-    for r in category_debits:
-        print(r)
+                current_category = category[2]
+                break
+
+        if current_category is not None:
+            record = []
+            for key in keys:
+                record.append(data[key][i])
+            record.append(current_category)
+            category_debits.append(record)
+    return category_debits
+
 
 app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
@@ -260,8 +275,8 @@ def main_site():
     usernames_data = show_all_users_once(database_data_dict[keys[5]])
     categorised_users = show_categorised_users()
     summed_category_debits = debits_for_categories(keys, database_data_dict, categorised_users)
-    montly_categories = check_montly_categories(keys, database_data_dict, categorised_users)
-    merge_data_lists(keys, database_data_dict, categorised_users)
+    merged_list = merge_data_lists(keys, database_data_dict, categorised_users)
+    montly_categories = check_montly_categories(merged_list)
 
     current_balance = [database_data_dict[keys[9]][0], database_data_dict[keys[10]][0]]
 
@@ -295,6 +310,7 @@ def main_site():
     values.append(usernames_data)
     values.append(categorised_users)
     values.append(summed_category_debits)
+    values.append(montly_categories)
 
     # Actions after pressing button in html
     if request.method == "POST": # If user pressed button check and chooses file

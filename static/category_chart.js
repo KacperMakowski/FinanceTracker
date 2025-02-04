@@ -11,26 +11,26 @@ const data = {
             }]
         };
 
-        const config = {
-            type: 'doughnut',
-            data: data,
-            options: {
-                responsive: true,
+const config = {
+    type: 'doughnut',
+    data: data,
+    options: {
+        responsive: true,
 
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                },
-                scales: {
-                    y: {
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+        },
+        scales: {
+            y: {
 
-                        beginAtZero: true,
-                    },
-                    x: {
-                    }
-                }
+                beginAtZero: true,
+            },
+            x: {
             }
-        };
+        }
+    }
+};
 
-        new Chart(document.getElementById('DougnutCharCategories'), config);
+new Chart(document.getElementById('DougnutCharCategories'), config);
