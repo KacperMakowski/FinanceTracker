@@ -165,7 +165,7 @@ def check_montly_categories(data):
 
     for (month, category), total_amount in months.items():
         summed_category_debits.append([month, category, round(total_amount, 2)])
-    print(summed_category_debits)
+
     return summed_category_debits
 
 
@@ -179,7 +179,9 @@ def round_value(data_list):
 def show_all_users_once(data_list):
     filtered_list = []
     for data in data_list:
-        if data not in filtered_list and data != '':
+        if data == '':
+            data = "Fizyczne uzycie karty"
+        if data not in filtered_list:
             filtered_list.append(data)
 
     return filtered_list
@@ -342,6 +344,7 @@ def categories_site():
         categorised_users_category.append(user[2])
 
     for user in all_users:
+        print(user)
         if user not in categorised_users:
             uncategorised_users.append(user)
 
@@ -383,7 +386,7 @@ def edit_categories_site():
             for key, value in request.form.items():
                 if key[-1] == '1':
                     key = key[:-1]
-                    if key not in categories and value != '' and value != 'Zapisz kategorie' and value != 'Przejdź':
+                    if key not in categories and value != 'Zapisz kategorie' and value != 'Przejdź':
                         categories[key] = value
                 else:
                     if value != '' and value != 'Zapisz kategorie' and value != 'Przejdź':
