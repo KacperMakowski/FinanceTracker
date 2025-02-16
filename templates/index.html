@@ -104,8 +104,7 @@
     <h2>Zasada 50/30/20: 50% na potrzeby, 30% na pragnienia i 20% na oszczędności lub spłatę długów</h2>
     v0 DO FRONTU
     </div>
-    <h3>
-   <select id="select_first_month" name="select_first_month">
+   <select id="select_month" name="select_month">
     {% set unique_months = [] %}
     {% for v in values[10] %}
         {% if v[0] not in unique_months %}
@@ -114,18 +113,6 @@
         {% endif %}
     {% endfor %}
 </select>
-    -
-    <select id="select_second_month" name="select_second_month">
-    {% set unique_months = [] %}
-    {% for v in values[10] %}
-        {% if v[0] not in unique_months %}
-            <option>{{ v[0] }}</option>
-            {% set _ = unique_months.append(v[0]) %}
-        {% endif %}
-    {% endfor %}
-</select>
-
-    </h3>
     <div style="width: 800px; margin: 0 auto"><canvas id="DougnutCharMonthCategories"></canvas></div>
     <script>
         // Send data to JS
@@ -139,7 +126,6 @@
         let categories_names = {{ values[8][2] | tojson}}
         let summed_categories = {{ values[9] | tojson}}
         let summedCategoryDebits = {{ values[10] | tojson}}
-        let last_date = {{ values[10][0][0] | tojson }}
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script type="module" src=" {{ url_for('static', filename='cred_deb_month_chart.js') }}"></script>
