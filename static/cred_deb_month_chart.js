@@ -16,7 +16,7 @@ const data = {
                 label: 'Wydatki' ,
                 data: chart_debits,
                 fill: false,
-                borderColor: 'rgb(231, 9, 9)',
+                borderColor: 'rgba(113,255,177,1)',
                 tension: 0.1,
                 pointRadius: 5,
             },
@@ -24,7 +24,7 @@ const data = {
                     label: 'Przychody',
                     data: chart_credits,
                     fill: false,
-                    borderColor: 'rgb(48, 183, 39)',
+                    borderColor: 'rgba(0,111,255,1)',
                     tension: 0.1,
                     pointRadius: 5,
                 }]

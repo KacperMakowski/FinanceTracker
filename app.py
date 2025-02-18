@@ -250,7 +250,7 @@ def merge_data_lists(keys, data, users):
     return category_debits
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 @app.route('/', methods=['GET', 'POST'])
 
 def main_site():

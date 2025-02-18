@@ -1,0 +1,22 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+@import "tailwindcss";
+@theme {
+}
+input[type="file"]
+{
+    display: none;
+}
+input[type="submit"]
+{
+    display: none;
+}
+.first-chart
+{
+    background: rgb(113,255,177);
+    background: linear-gradient(90deg, rgba(113,255,177,1) 0%, rgba(0,111,255,1) 100%);
+}
+.second-chart
+{
+    background: rgb(255,107,125);
+    background: linear-gradient(90deg, rgba(255,107,125,1) 0%, rgba(215,0,141,1) 100%);
+}

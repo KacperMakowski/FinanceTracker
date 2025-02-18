@@ -14,7 +14,7 @@ const data = {
                 tension: 0.1, // Ustawienie wygładzenia linii
                 pointRadius: 5,
                 pointBackgroundColor: chart_difference.map(value =>
-            value > 0 ? 'rgba(48, 183, 39, 0.78)' : 'rgba(231, 9, 9, 0.78)'
+            value > 0 ? 'rgba(255,107,125,1)' : 'rgba(215,0,141,1)'
         ),
             }]
         };
