@@ -377,7 +377,7 @@ def categories_site():
                 else:
                     if value != '' and value != 'Zapisz kategorie' and value != 'Przejdź':
                         categories[key] = value
-            flash("Zapisano kategorie dla użytkoników", "success")
+            flash("Zapisano kategorie dla użytków", "success")
             save_categories_to_db(list(categories.keys()), list(categories.values()))
         elif 'to_edit_categories' in request.form:
             return redirect(url_for('edit_categories_site'))
