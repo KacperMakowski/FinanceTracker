@@ -1,26 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>FinanceTracker | Edytuj kategorie</title>
-</head>
-<body>
-    <h1>Wróć do strony głównej
-        <form action="/" method="post">
-            <input type="submit" value="Wróć" id = "to_main_site" name="to_main_site"/>
-        </form>
-    </h1>
-    <h1>Edytuj kategorie użytkowników</h1>
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="text-center my-5 text-3xl font-semibold">Edytuj kategorie użytkowników</h1>
     <form method="post" name="categories" id="categories">
-        <table border="1">
-            <th>Nazwa konta</th>
-            <th>Domyślne kategorie</th>
-            <th>Własna kategoria</th>
+        <table class="w-full table-full-width border border-grey-light">
+            <th class="border border-grey-light">Nazwa konta</th>
+            <th class="border border-grey-light">Domyślne kategorie</th>
+            <th class="border border-grey-light">Własna kategoria</th>
                 {% for value in values %}
                     {% for v in value %}
-                        <tr>
-                            <td>{{ v[1] }}</td>
-                            <td>
+                        <tr class="border border-grey-light">
+                            <td class="border border-grey-light">{{ v[1] }}</td>
+                            <td class="border border-grey-light">
                                 <select id="{{ v[1] }}" name="{{ v[1] }}">
                                     <option>{{ v[2] }}</option>
                                     <option>Mieszkanie</option>
@@ -33,12 +24,11 @@
                                     <option>Oszczędności</option>
                                 </select>
                             </td>
-                            <td><input type="text" id="{{ v }}1" name="{{ v }}1"></td>
+                            <td class="border border-grey-light"><input type="text" id="{{ v }}1" name="{{ v }}1"></td>
                         </tr>
                     {% endfor %}
                 {% endfor %}
         </table>
         <input type="submit" id="save_changes" name="save_changes" value="Zapisz kategorie">
     </form>
-</body>
-</html>
+{% endblock %}

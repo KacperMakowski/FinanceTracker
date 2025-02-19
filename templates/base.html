@@ -1,10 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/src/output.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </head>
-<body>
+<body class="bg-pink-50">
+    <div class="header flex text-white shadow font-semibold text-lg py-5 px-4 sm:px-6 lg:px-8">
+        <form action="/" method="post">
+            <button type="submit" id="to_main" name="to_main" class="px-5 hover:scale-110 active:text-gray-300">
+                <i class="fas fa-home"></i>
+            </button>
+        </form>
+        <form action="/categories" method="post">
+            <button type="submit" id="to_categories" name="to_categories" class="px-5 hover:scale-110 active:text-gray-300">
+                Dodaj kategorie dla użytkowników
+            </button>
+        </form>
+        <form action="/edit_categories" method="post">
+            <button type="submit" id="to_edit" name="to_edit" class="px-5 hover:scale-110 active:text-gray-300">
+                Edytuj kategorie użytkowników
+            </button>
+        </form>
+    </div>
+
+    {% block content %}
+    {% endblock %}
 
 </body>
 </html>

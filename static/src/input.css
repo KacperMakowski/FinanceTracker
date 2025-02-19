@@ -10,6 +10,17 @@ input[type="submit"]
 {
     display: none;
 }
+
+.header
+{
+   background: rgb(0, 81, 255);
+    background: linear-gradient(90deg, rgb(0, 81, 255) 0%, rgb(2, 55, 168) 100%);
+}
+.text-head
+{
+    color:rgb(100, 255, 0);
+
+}
 .first-chart
 {
     background: rgb(113,255,177);
@@ -19,4 +30,46 @@ input[type="submit"]
 {
     background: rgb(255,107,125);
     background: linear-gradient(90deg, rgba(255,107,125,1) 0%, rgba(215,0,141,1) 100%);
+}
+.first-dough
+{
+    background: rgb(255,176,47);
+    background: linear-gradient(90deg, rgba(255,176,47,1) 0%, rgba(199,80,0,1) 100%);
+}
+.second-dough
+{
+    background: rgb(244,0,255);
+    background: linear-gradient(90deg, rgba(244,0,255,1) 0%, rgba(148,47,255,1) 100%);
+}
+
+.custom-select {
+    scrollbar-width: thin;
+    scrollbar-color: #8B5CF6 #DDD6FE;
+}
+
+.custom-select::-webkit-scrollbar {
+    width: 10px;
+}
+
+.custom-select::-webkit-scrollbar-track {
+    background: #DDD6FE;
+}
+
+.custom-select::-webkit-scrollbar-thumb {
+    background-color: #8B5CF6;
+    border-radius: 20px;
+    border: 3px solid #DDD6FE;
+}
+
+.custom-select::-webkit-scrollbar-thumb:hover {
+    background-color: #7C3AED;
+}
+
+.custom-select option {
+    background-color: #8B5CF6;
+    color: white;
+}
+
+.custom-select option:checked {
+    background-color: #7C3AED;
 }

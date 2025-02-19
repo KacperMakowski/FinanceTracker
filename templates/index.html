@@ -1,21 +1,17 @@
-<!doctype html>
-<html class="bg-pink-50">
-<head >
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../static/src/output.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <h1 class="text-purple-900 font-medium text-center text-3xl my-5">
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="text-blue-600 drop-shadow-xs font-medium text-center text-4xl my-5">
       Twój Osobisty Tracker Finansów
     </h1>
 
-    <div class="flex flex-col justify-between bg-white rounded-xl shadow-md py-4 px-4 border mx-4 my-3">
-        <div class="flex flex-row items-center justify-between">
+    <div class="flex flex-col justify-between bg-white rounded-xl shadow-md py-4 px-4 mx-4 my-3">
+        <div class="flex flex-row items-center justify-between flex-nowrap">
         <p>Ostatnio zapisana data: <a class="text-blue-600">{{ values[0] }}</a></p>
-            <form action="/" method="post" enctype="multipart/form-data">
-            <label for="file" class="bg-blue-600 text-white rounded p-1.5"><i class="fas fa-file"></i> Wybierz plik</label>
+            <form action="/" method="post" enctype="multipart/form-data" class="flex flex-nowrap">
+            <label for="file" class="bg-blue-600 text-white rounded py-1.5 px-2 mx-2 hover:scale-105 active:text-gray-300"><i class="fas fa-file"></i> Wybierz plik</label>
                 <input type="file" name="file" id="file" accept=".csv"/>
-                <label for="file" class="bg-green-500 text-white rounded p-1.5">
+                <label for="file" class="bg-green-500 text-white rounded py-1.5 px-2 hover:scale-105 active:text-gray-300">
                     <i class="fas fa-save"></i> Zapisz
                 <input type="submit" id = "save_csv" name="save_csv"/>
                     </label>
@@ -23,157 +19,45 @@
         </div>
         <p class=" text-gray-500 text-xs">Wczytaj swoją historię konta z pliku .CSV (nowszą od ostatniej daty)</p>
     </div>
-</head>
-<body>
 <div class="flex justify-around w-full flex-wrap mt-7">
-    <div class="bg-white rounded-lg wfull md:w-9/20 mb-7 shadow-lg">
+    <div class="bg-white rounded-lg w-full md:w-9/20 mb-7 shadow-lg hover:scale-105">
         <div class="first-chart rounded-t-lg py-3 px-2 font-bold text-white"><i class="fas fa-chart-line"></i> Przychody</div>
         <canvas class="m-4" id="LineChartCreditsDebits"></canvas>
     </div>
 
-    <div class="bg-white rounded-lg w-full md:w-9/20 mb-7 shadow-lg">
-        <div class="second-chart rounded-t-lg py-3 px-2 font-bold text-white"><i class="fas fa-chart-line"></i> Różnica</div>
+    <div class="bg-white rounded-lg w-full md:w-9/20 mb-7 shadow-lg hover:scale-105">
+        <div class="second-chart rounded-t-lg py-3 px-2 font-bold text-white"><i class="fas fa-chart-line"></i> Bilans</div>
         <canvas class="m-4" id="LineChartDifference"></canvas>
     </div>
-
-</div>
-
-    <script>
-        // Send data to JS
-        let values_to_js = {{ values | tojson }};
-        let months_debits_to_js = {{ values[2] | tojson }};
-        let debits_to_js = {{ values[3] | tojson }};
-        let months_credits_to_js = {{ values[4] | tojson }};
-        let credits_to_js = {{ values[5] | tojson }};
-        let monthly_difference = {{ values[6] | tojson}}
-        let users = {{ values[8][1] | tojson}}
-        let categories_names = {{ values[8][2] | tojson}}
-        let summed_categories = {{ values[9] | tojson}}
-        let summedCategoryDebits = {{ values[10] | tojson}}
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script type="module" src=" {{ url_for('static', filename='cred_deb_month_chart.js') }}"></script>
-    <script type="module" src=" {{ url_for('static', filename='difference_per_month_chart.js') }}"></script>
-    <script type="module" src=" {{ url_for('static', filename='category_chart.js') }}"></script>
-    <script type="module" src=" {{ url_for('static', filename='month_cat_chart.js') }}"></script>
-</body>
-</html>
-    <!--
-    <style>
-        /* Styl dla tabeli, aby była responsywna */
-        .table-container {
-            overflow-x: auto;  /* Dodaje przewijanie poziome */
-            -webkit-overflow-scrolling: touch; /* Dla lepszej responsywności na urządzeniach mobilnych */
-        }
-
-        table {
-            width: 100%;  /* Tabela będzie miała 100% szerokości kontenera */
-            border-collapse: collapse;  /* Usuwa odstępy między komórkami */
-        }
-
-        th, td {
-            padding: 8px;  /* Dodaje odstępy w komórkach */
-            text-align: left;  /* Wyrównanie tekstu */
-            border: 1px solid #ddd;  /* Granice komórek */
-        }
-
-        /* Dla małych ekranów dodajemy trochę stylu */
-        @media (max-width: 600px) {
-            table {
-                font-size: 12px;  /* Zmniejszamy czcionkę na małych ekranach */
-            }
-        }
-    </style>
-    -->
-</head>
-
-<body>
-
-<!--
-    <div style="text-align: center;">
-        <h1>FinanceTracker</h1>
-        <h2>Ostatnio zapisana data: {{ values[0] }} </h2>
-        <h3>Wczytaj swoją historię konta z pliku .CSV (nowszą od ostatniej daty)</h3>
-        <form action="/" method="post" enctype="multipart/form-data">
-            <label>
-                <input type="file" name="file" id="file" accept=".csv"/>
-                <input type="submit" value="Wybierz" id = "save_csv" name="save_csv"/>
-            </label>
-        </form>
-        <h1>Saldo:</h1>
-        <h2>{{ values[1][0] }} {{ values[1][1] }}</h2>
-
-        <h1>Zestawienie zysków i wydatków na dany miesiąc: </h1>
-        <div style="width: 800px; margin: 0 auto"><canvas id="LineChartCreditsDebits"></canvas></div>
-        <div class="table-container">
-            <table>
-                <tr style="background-color: rgba(182,182,182,0.78)">
-                    {% for v in values[2] %}
-                        <td>{{ v }}</td>
-                    {% endfor %}
-                </tr>
-                <tr style="background-color: rgba(255,57,57,0.78)">
-                    {% for v in values[3] %}
-                        <td>{{ v }}</td>
-                    {% endfor %}
-                </tr>
-                <tr style="background-color: rgba(81,250,65,0.78)">
-                    {% for v in values[5] %}
-                        <td>{{ v }}</td>
-                    {% endfor %}
-                </tr>
-            </table>
-        </div>
-
-        <h1>Różnica: </h1>
-        <div style="width: 800px; margin: 0 auto"><canvas id="LineChartDifference"></canvas></div>
-        <div class="table-container">
-            <table>
-                <tr style="background-color: rgba(182,182,182,0.78)">
-                    {% for v in values[2] %}
-                        <td>{{ v }}</td>
-                    {% endfor %}
-                    </tr>
-                        <tr>
-                        {% for v in values[6] %}
-                            {% if v[0] == '-' %}
-                                <td style="background-color: rgba(255,57,57,0.78)">{{ v }}</td>
-                            {% endif %}
-                            {% if v[0] != '-' %}
-                                <td style="background-color: rgba(81,250,65,0.78)">{{ v }}</td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-            </table>
-        </div>
-        <h1>Pieniądze wydane na daną kategorię: </h1>
-        <div style="width: 800px; margin: 0 auto"><canvas id="DougnutCharCategories"></canvas></div>
-        <div class="table-container">
-            <table>
-                <tr style="background-color: rgba(182,182,182,0.78)">
-
-                    </tr>
-                        <tr>
-                    </tr>
-            </table>
-        </div>
-        <h2>Przejdz na strone, aby dodać tagi dla użytkowników</h2>
-        <form action="/categories" method="post">
-            <input type="submit" value="Przejdź" id = "to_categories" name="to_categories"/>
-        </form>
-    <h2>Zasada 50/30/20: 50% na potrzeby, 30% na pragnienia i 20% na oszczędności lub spłatę długów</h2>
-    v0 DO FRONTU
+    <div class="bg-white rounded-lg w-full md:w-9/20 mb-7 shadow-lg hover:scale-105">
+        <div class="first-dough rounded-t-lg py-3 px-2 font-bold text-white"><i class="fas fa-chart-line"></i> Wydatki na daną kategorię</div>
+        <canvas class="m-4" id="DougnutCharCategories"></canvas>
     </div>
-   <select id="select_month" name="select_month">
-    {% set unique_months = [] %}
-    {% for v in values[10] %}
-        {% if v[0] not in unique_months %}
-            <option>{{ v[0] }}</option>
-            {% set _ = unique_months.append(v[0]) %}
-        {% endif %}
-    {% endfor %}
-</select>
-    <div style="width: 800px; margin: 0 auto"><canvas id="DougnutCharMonthCategories"></canvas></div>
+    <div class="bg-white rounded-lg w-full md:w-9/20 mb-7 shadow-lg hover:scale-105">
+        <div class="second-dough rounded-t-lg py-3 px-2 font-bold text-white"><i class="fas fa-chart-line"></i> Wydatki na daną kategorię dla okresu
+            <select id="select_first_month" name="select_first_month" class="custom-select">
+                {% set unique_months = [] %}
+                {% for v in values[10] %}
+                    {% if v[0] not in unique_months %}
+                        <option class="bg-purple-400 font-semibold" value="{{ v[0] }}">{{ v[0] }}</option>
+                        {% set _ = unique_months.append(v[0]) %}
+                    {% endif %}
+                {% endfor %}
+            </select>
+-
+            <select id="select_second_month" name="select_second_month" class="custom-select">
+                {% set unique_months = [] %}
+                {% for v in values[10] %}
+                    {% if v[0] not in unique_months %}
+                        <option class="bg-purple-400 font-semibold" value="{{ v[0] }}">{{ v[0] }}</option>
+                        {% set _ = unique_months.append(v[0]) %}
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <canvas class="m-4" id="DougnutCharMonthCategories"></canvas>
+    </div>
+</div>
     <script>
         // Send data to JS
         let values_to_js = {{ values | tojson }};
@@ -181,18 +65,19 @@
         let debits_to_js = {{ values[3] | tojson }};
         let months_credits_to_js = {{ values[4] | tojson }};
         let credits_to_js = {{ values[5] | tojson }};
-        let monthly_difference = {{ values[6] | tojson}}
-        let users = {{ values[8][1] | tojson}}
-        let categories_names = {{ values[8][2] | tojson}}
-        let summed_categories = {{ values[9] | tojson}}
-        let summedCategoryDebits = {{ values[10] | tojson}}
+        let monthly_difference = {{ values[6] | tojson }};
+        let users = {{ values[8][1] | tojson }};
+        let categories_names = {{ values[8][2] | tojson }};
+        let summed_categories = {{ values[9] | tojson }};
+        let summedCategoryDebits = {{ values[10] | tojson }};
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script type="module" src=" {{ url_for('static', filename='cred_deb_month_chart.js') }}"></script>
-    <script type="module" src=" {{ url_for('static', filename='difference_per_month_chart.js') }}"></script>
-    <script type="module" src=" {{ url_for('static', filename='category_chart.js') }}"></script>
-    <script type="module" src=" {{ url_for('static', filename='month_cat_chart.js') }}"></script>
-
--->
-</body>
-</html>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script>
+        Chart.register(ChartDataLabels);
+    </script>
+    <script type="module" src="{{ url_for('static', filename='cred_deb_month_chart.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='difference_per_month_chart.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='category_chart.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='month_cat_chart.js') }}"></script>
+{% endblock %}

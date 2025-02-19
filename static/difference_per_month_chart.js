@@ -7,7 +7,6 @@ for(let i = 0; i < monthly_difference.length; i++)
 const data = {
             labels: months_debits_to_js, // Miesiące na osi X
             datasets: [{
-                label: 'Ilość wydanych pieniędzy w poszczególnym miesiącu',
                 data: chart_difference, // Debety na osi Y
                 fill: false, // Bez wypełnienia pod wykresem
                 borderColor: 'rgba(126,126,126,0.78)',
@@ -28,8 +27,11 @@ const data = {
                 responsive: true,
 
                 plugins: {
+                    datalabels: {
+                        display: false
+                    },
                     legend: {
-                        position: 'top',
+                       display:false
                     },
                     tooltip: {
                         callbacks: {

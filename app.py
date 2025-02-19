@@ -316,8 +316,12 @@ def main_site():
     if request.method == "POST": # If user pressed button check and chooses file
         if 'save_csv' in request.form:
             save_csv_to_db(keys, last_date_from_db)
-        elif 'to_categories' in request.form:
+        if 'to_categories' in request.form:
             return redirect(url_for('categories_site'))
+        if 'to_edit' in request.form:
+            return redirect(url_for('edit_categories_site'))
+        if 'to_main' in request.form:
+            return redirect(url_for('main_site'))
 
     return render_template("index.html", values=values)
 
@@ -363,6 +367,8 @@ def categories_site():
             return redirect(url_for('edit_categories_site'))
         elif 'to_main_site' in request.form:
             return redirect(url_for('main_site'))
+        elif 'to_categories' in request.form:
+            return redirect(url_for('categories_site'))
 
 
     return render_template("add_categories.html", values=values)
@@ -378,7 +384,11 @@ def edit_categories_site():
     if request.method == "POST":
         if 'to_main_site' in request.form:
             return redirect(url_for('main_site'))
-        if 'save_changes' in request.form:
+        elif 'to_edit_categories' in request.form:
+            return redirect(url_for('edit_categories_site'))
+        elif 'add_categories' in request.form:
+            return redirect(url_for('categories_site'))
+        elif 'save_changes' in request.form:
             categories = {}
             for key, value in request.form.items():
                 if key[-1] == '1':

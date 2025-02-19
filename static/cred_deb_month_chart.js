@@ -38,6 +38,9 @@ const data = {
                 responsive: true,
 
                 plugins: {
+                    datalabels: {
+                        display: false
+                    },
                     legend: {
                         position: 'top',
                     },
