@@ -1,46 +1,55 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>Wróć do strony głównej
-        <form action="/" method="post">
-            <input type="submit" value="Wróć" id = "to_main_site" name="to_main_site"/>
-        </form>
-    </h1>
-    <h1>lub</h1>
-    <h1>Edytuj kategorię dla istniejących użytkowników
-        <form action="/edit_categories" method="post">
-            <input type="submit" value="Przejdź" id = "to_edit_categories" name="to_edit_categories"/>
-        </form>
-    </h1>
-
-
-    <h1>Wybierz kategorie dla danego odbiorcy:</h1>
+<h1 class="text-blue-600 drop-shadow-xs font-medium text-center text-4xl my-5">
     {% if values == [[]] %}
-        <p>Przyznano kategorię wszystkim użytkownikom</p>
+        Przyznano kategorię wszystkim użytkownikom
+    {% else %}
+        Wybierz kategorie dla danego odbiorcy
     {% endif %}
-    {% if values != [[]] %}
-        {% for value in values  %}
+</h1>
+
+{% if values != [[]] %}
+    <div class="container mx-auto px-4 max-w-4xl">
+        {% for value in values %}
             {% for v in value %}
-                {{v}}
-                    <form method="post" name="categories" id="categories">
-                        <select id="{{ v }}" name="{{ v }}">
-                            <option></option>
-                            <option>Mieszkanie</option>
-                            <option>Usługi stałe</option>
-                            <option>Transport</option>
-                            <option>Żywność</option>
-                            <option>Chemia</option>
-                            <option>Leczenie</option>
-                            <option>Rozrywka i rekreacja</option>
-                            <option>Oszczędności</option>
-                        </select>
-                        lub wpisz własną kategorię:
-                    <input type="text" id="{{ v }}1" name="{{ v }}1">
+                <div class="bg-white rounded-xl shadow-md p-6 mb-4">
+                    <div class="flex flex-col space-y-4">
+                        <h2 class="text-lg font-medium text-gray-900">{{ v }}</h2>
+
+                        <form method="post" name="categories" id="categories" class="space-y-4">
+                            <div class="flex flex-col md:flex-row md:items-center gap-4">
+                                <div class="flex-1">
+                                    <label for="{{ v }}" class="block text-sm font-medium text-gray-700 mb-1">Wybierz kategorię:</label>
+                                    <select id="{{ v }}" name="{{ v }}" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="">Wybierz kategorię</option>
+                                        <option>Mieszkanie</option>
+                                        <option>Usługi stałe</option>
+                                        <option>Transport</option>
+                                        <option>Żywność</option>
+                                        <option>Chemia</option>
+                                        <option>Leczenie</option>
+                                        <option>Rozrywka i rekreacja</option>
+                                        <option>Oszczędności</option>
+                                    </select>
+                                </div>
+
+                                <div class="flex-1">
+                                    <label for="{{ v }}1" class="block text-sm font-medium text-gray-700 mb-1">lub wpisz własną kategorię:</label>
+                                    <input type="text" id="{{ v }}1" name="{{ v }}1" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             {% endfor %}
-            <p>
-                <input type="submit" id="save_categories" name="save_categories" value="Zapisz kategorie">
-            </p>
-            </form>
+
+            <div class="flex justify-center mt-6 mb-8">
+                <button type="submit" form="categories" name="save_categories" class="bg-blue-600 text-white rounded-md py-2 px-4 md:fixed md:right-15 md:top-[50vh] hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                    Zapisz kategorie
+                </button>
+            </div>
         {% endfor %}
-    {% endif %}
+    </div>
+{% endif %}
 {% endblock %}

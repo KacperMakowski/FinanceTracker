@@ -2,14 +2,9 @@
 import csv
 import sqlite3
 import io
+import os
+from flask import Flask, render_template, redirect, request, url_for, session, flash
 from datetime import datetime
-from itertools import count
-
-import matplotlib.pyplot as plt
-import numpy as np
-
-from flask import Flask, render_template, redirect, request, url_for, session
-
 
 # FUNCTIONS
 
@@ -54,32 +49,57 @@ def init_categorised_users_db():
 2. Read last row from list which contains the oldest date
 3. Compare first date from new CSV file, with last date from database, and if file is newer save new file to database
 """
-def save_csv_to_db(keys, last_date):
+
+
+def save_csv_to_db(keys, last_date, file):
+    print("poszło")
     con = sqlite3.connect('database.db')
     cur = con.cursor()
-    file = request.files['file']
     last_date = datetime.strptime(last_date, '%Y-%m-%d')
+
     if file.filename == '':
         print("No file selected")
-        values = ["BRAK"]
-    else:
-        stream = io.StringIO(file.stream.read().decode("utf-8-sig"))  # "utf-8-sig" to decode first column name
+        return False
+
+    try:
+        stream = io.StringIO(file.stream.read().decode("utf-8-sig"))
         csv_reader = csv.DictReader(stream)
         rows = list(csv_reader)
-        last_row = rows[-1]  # Find last row from CSV file (it contains oldest date)
-        first_date = datetime.strptime(last_row['Data transakcji'], "%Y-%m-%d")  # Make date from string
-        # If the oldest date from CSV is newer than the newest from database save CSV to db #
+
+        if not rows:
+            print("Plik CSV jest pusty")
+            return False
+
+        last_row = rows[-1]
+        first_date = datetime.strptime(last_row['Data transakcji'], "%Y-%m-%d")
+
         if first_date > last_date:
+            print(first_date)
+            print(last_date)
+
             filtered_data = [
-                tuple(row[key] if key in row else "" for key in keys)
+                tuple(
+                    row.get(key, "")
+                    for key in keys
+                )
                 for row in rows
             ]
+
+
             cur.executemany("INSERT INTO data VALUES (NULL,?,?,?,?,?,?,?,?,?,?)", filtered_data)
             con.commit()
-            con.close()
             print("Data successfully added to the database")
+            return True
         else:
             print("Data already in database")
+            return False
+
+    except Exception as e:
+        print(f"Błąd zapisu: {str(e)}")
+        con.rollback()
+        return False
+    finally:
+        con.close()
 
 # Saves users categories in db (categorised_users)
 def save_categories_to_db(account_name, category):
@@ -165,7 +185,6 @@ def check_montly_categories(data):
 
     for (month, category), total_amount in months.items():
         summed_category_debits.append([month, category, round(total_amount, 2)])
-    print(summed_category_debits)
     return summed_category_debits
 
 
@@ -251,6 +270,7 @@ def merge_data_lists(keys, data, users):
 
 
 app = Flask(__name__, static_folder='static')
+app.secret_key = os.environ.get('FLASK_SECRET_KEY') or os.urandom(24)
 @app.route('/', methods=['GET', 'POST'])
 
 def main_site():
@@ -313,15 +333,20 @@ def main_site():
     values.append(montly_categories)
 
     # Actions after pressing button in html
-    if request.method == "POST": # If user pressed button check and chooses file
+    if request.method == "POST":
         if 'save_csv' in request.form:
-            save_csv_to_db(keys, last_date_from_db)
-        if 'to_categories' in request.form:
-            return redirect(url_for('categories_site'))
-        if 'to_edit' in request.form:
+            file = request.files.get("file")
+            if file and file.filename.endswith(".csv"):
+                # Przekaż odpowiednie parametry
+                save_csv_to_db(keys[1:], last_date_from_db, file)  # keys[1:] pomija kolumnę "Id"
+                flash(f"Plik {file.filename} został poprawnie zapisany!", "success")
+
+        elif 'to_edit' in request.form:
             return redirect(url_for('edit_categories_site'))
-        if 'to_main' in request.form:
+        elif 'to_main' in request.form:
             return redirect(url_for('main_site'))
+        elif 'to_categories' in request.form:
+            return redirect(url_for('categories_site'))
 
     return render_template("index.html", values=values)
 

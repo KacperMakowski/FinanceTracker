@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
 @import "tailwindcss";
 @theme {
+
 }
 input[type="file"]
 {
@@ -10,7 +11,11 @@ input[type="submit"]
 {
     display: none;
 }
-
+@layer components {
+  .peer:focus ~ label {
+    @apply ring-2 ring-blue-500 ring-offset-2;
+  }
+}
 .header
 {
    background: rgb(0, 81, 255);

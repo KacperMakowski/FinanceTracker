@@ -1,34 +1,37 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="text-center my-5 text-3xl font-semibold">Edytuj kategorie użytkowników</h1>
-    <form method="post" name="categories" id="categories">
-        <table class="w-full table-full-width border border-grey-light">
-            <th class="border border-grey-light">Nazwa konta</th>
-            <th class="border border-grey-light">Domyślne kategorie</th>
-            <th class="border border-grey-light">Własna kategoria</th>
-                {% for value in values %}
-                    {% for v in value %}
-                        <tr class="border border-grey-light">
-                            <td class="border border-grey-light">{{ v[1] }}</td>
-                            <td class="border border-grey-light">
-                                <select id="{{ v[1] }}" name="{{ v[1] }}">
-                                    <option>{{ v[2] }}</option>
-                                    <option>Mieszkanie</option>
-                                    <option>Usługi stałe</option>
-                                    <option>Transport</option>
-                                    <option>Żywność</option>
-                                    <option>Chemia</option>
-                                    <option>Leczenie</option>
-                                    <option>Rozrywka i rekreacja</option>
-                                    <option>Oszczędności</option>
-                                </select>
-                            </td>
-                            <td class="border border-grey-light"><input type="text" id="{{ v }}1" name="{{ v }}1"></td>
-                        </tr>
+    <h1 class="text-blue-600 drop-shadow-xs font-medium text-center text-4xl my-5">Edytuj kategorie użytkowników</h1>
+    <div class="mx-auto py-[5vh] mb-[5vh] bg-gray-50 w-[95vw] border-3 border-blue-600 rounded-4xl shadow-xl">
+        <form method="post" name="categories" id="categories">
+            <table class="mx-auto w-[90vw]">
+                <th class="text-left">Nazwa konta</th>
+                <th class="text-left">Domyślne kategorie</th>
+                <th class="text-left">Własna kategoria</th>
+                    {% for value in values %}
+                        {% for v in value %}
+                            <tr >
+                                <td class="border-t border-b border-r border-blue-600">{{ v[1] }}</td>
+                                <td class="border-t border-b border-r border-blue-600">
+                                    <select id="{{ v[1] }}" name="{{ v[1] }}">
+                                        <option>{{ v[2] }}</option>
+                                        <option>Mieszkanie</option>
+                                        <option>Usługi stałe</option>
+                                        <option>Transport</option>
+                                        <option>Żywność</option>
+                                        <option>Chemia</option>
+                                        <option>Leczenie</option>
+                                        <option>Rozrywka i rekreacja</option>
+                                        <option>Oszczędności</option>
+                                    </select>
+                                </td>
+                                <td class="border-t border-b border-blue-600 ">
+                                    <input class="focus:outline-none focus:border-2 border-blue-700" type="text" id="{{ v }}1" name="{{ v }}1"></td>
+                            </tr>
+                        {% endfor %}
                     {% endfor %}
-                {% endfor %}
-        </table>
-        <input type="submit" id="save_changes" name="save_changes" value="Zapisz kategorie">
-    </form>
+            </table>
+            <input type="submit" id="save_changes" name="save_changes" value="Zapisz kategorie">
+        </form>
+    </div>
 {% endblock %}

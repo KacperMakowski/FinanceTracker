@@ -1,63 +1,96 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<h1 class="text-blue-600 drop-shadow-xs font-medium text-center text-4xl my-5">
-      Twój Osobisty Tracker Finansów
-    </h1>
-
-    <div class="flex flex-col justify-between bg-white rounded-xl shadow-md py-4 px-4 mx-4 my-3">
-        <div class="flex flex-row items-center justify-between flex-nowrap">
-        <p>Ostatnio zapisana data: <a class="text-blue-600">{{ values[0] }}</a></p>
-            <form action="/" method="post" enctype="multipart/form-data" class="flex flex-nowrap">
-            <label for="file" class="bg-blue-600 text-white rounded py-1.5 px-2 mx-2 hover:scale-105 active:text-gray-300"><i class="fas fa-file"></i> Wybierz plik</label>
-                <input type="file" name="file" id="file" accept=".csv"/>
-                <label for="file" class="bg-green-500 text-white rounded py-1.5 px-2 hover:scale-105 active:text-gray-300">
-                    <i class="fas fa-save"></i> Zapisz
-                <input type="submit" id = "save_csv" name="save_csv"/>
-                    </label>
-        </form>
-        </div>
-        <p class=" text-gray-500 text-xs">Wczytaj swoją historię konta z pliku .CSV (nowszą od ostatniej daty)</p>
-    </div>
-<div class="flex justify-around w-full flex-wrap mt-7">
-    <div class="bg-white rounded-lg w-full md:w-9/20 mb-7 shadow-lg hover:scale-105">
-        <div class="first-chart rounded-t-lg py-3 px-2 font-bold text-white"><i class="fas fa-chart-line"></i> Przychody</div>
-        <canvas class="m-4" id="LineChartCreditsDebits"></canvas>
-    </div>
-
-    <div class="bg-white rounded-lg w-full md:w-9/20 mb-7 shadow-lg hover:scale-105">
-        <div class="second-chart rounded-t-lg py-3 px-2 font-bold text-white"><i class="fas fa-chart-line"></i> Bilans</div>
-        <canvas class="m-4" id="LineChartDifference"></canvas>
-    </div>
-    <div class="bg-white rounded-lg w-full md:w-9/20 mb-7 shadow-lg hover:scale-105">
-        <div class="first-dough rounded-t-lg py-3 px-2 font-bold text-white"><i class="fas fa-chart-line"></i> Wydatki na daną kategorię</div>
-        <canvas class="m-4" id="DougnutCharCategories"></canvas>
-    </div>
-    <div class="bg-white rounded-lg w-full md:w-9/20 mb-7 shadow-lg hover:scale-105">
-        <div class="second-dough rounded-t-lg py-3 px-2 font-bold text-white"><i class="fas fa-chart-line"></i> Wydatki na daną kategorię dla okresu
-            <select id="select_first_month" name="select_first_month" class="custom-select">
-                {% set unique_months = [] %}
-                {% for v in values[10] %}
-                    {% if v[0] not in unique_months %}
-                        <option class="bg-purple-400 font-semibold" value="{{ v[0] }}">{{ v[0] }}</option>
-                        {% set _ = unique_months.append(v[0]) %}
-                    {% endif %}
-                {% endfor %}
-            </select>
--
-            <select id="select_second_month" name="select_second_month" class="custom-select">
-                {% set unique_months = [] %}
-                {% for v in values[10] %}
-                    {% if v[0] not in unique_months %}
-                        <option class="bg-purple-400 font-semibold" value="{{ v[0] }}">{{ v[0] }}</option>
-                        {% set _ = unique_months.append(v[0]) %}
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </div>
-        <canvas class="m-4" id="DougnutCharMonthCategories"></canvas>
-    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %} {% for category, message in messages %}
+            <div class="alert {{ 'bg-green-500' if category == 'success' else 'bg-red-500' }} text-white px-4 py-2 rounded-md my-2 text-center">
+	            {{ message }}
+            </div>
+        {% endfor %}
+        {% endif %}
+    {% endwith %}
+ <h1 class="text-blue-600 drop-shadow-xs font-medium text-center text-4xl my-5"> Twój Osobisty Tracker Finansów </h1>
+<div class="flex flex-col justify-between bg-white rounded-xl shadow-md py-4 px-4 mx-4 my-3">
+	<div class="flex flex-row items-center justify-between flex-nowrap">
+		<p>Ostatnio zapisana data: <a class="text-blue-600">{{ values[0] }}</a>
+		</p>
+		<form action="/" method="post" enctype="multipart/form-data" class="flex flex-nowrap">
+			<div class="flex items-center">
+				<label for="file" class="bg-blue-600 text-white rounded py-1.5 px-2 mx-2 active:outline-none active:ring-2 active:ring-blue-500 active:ring-offset-2 hover:scale-105 cursor-pointer transition-transform" >
+					<i class="fas fa-file"></i> Wybierz plik <input type="file" name="file" id="file" accept=".csv" class="hidden" onchange="updateFileName(this)" />
+				</label>
+			</div>
+			<button type="submit" name="save_csv" class="bg-green-500 text-white rounded py-1.5 px-2 cursor-pointer active:outline-none active:ring-2 active:ring-green-500 active:ring-offset-2 hover:scale-105 transition-transform">
+				<i class="fas fa-save"></i> Zapisz </button>
+		</form>
+	</div>
+	<div class="flex justify-between items-center">
+		<p class=" text-gray-500 text-xs">Wczytaj swoją historię konta z pliku .CSV (nowszą od ostatniej daty)</p>
+		<span id="file-name" class="text-gray-500 text-sm ml-2"></span>
+	</div>
 </div>
+<div class="flex justify-around w-full flex-wrap mt-7">
+	<div class="bg-white rounded-lg w-full md:w-9/20 mb-7 shadow-lg hover:scale-105 transition-transform">
+		<div class="first-chart rounded-t-lg py-3 px-2 font-bold text-white">
+			<i class="fas fa-chart-line"></i> Przychody
+		</div>
+		<canvas class="m-4" id="LineChartCreditsDebits"></canvas>
+	</div>
+	<div class="bg-white rounded-lg w-full md:w-9/20 mb-7 shadow-lg hover:scale-105 transition-transform">
+		<div class="second-chart rounded-t-lg py-3 px-2 font-bold text-white">
+			<i class="fas fa-chart-line"></i> Bilans
+		</div>
+		<canvas class="m-4" id="LineChartDifference"></canvas>
+	</div>
+	<div class="bg-white rounded-lg w-full md:w-9/20 mb-7 shadow-lg hover:scale-105 transition-transform">
+		<div class="first-dough rounded-t-lg py-3 px-2 font-bold text-white">
+			<i class="fas fa-chart-line"></i> Wydatki na daną kategorię
+		</div>
+		<canvas class="m-4" id="DougnutCharCategories"></canvas>
+	</div>
+	<div class="bg-white rounded-lg w-full md:w-9/20 mb-7 shadow-lg hover:scale-105 transition-transform">
+		<div class="second-dough rounded-t-lg py-3 px-2 font-bold text-white">
+			<i class="fas fa-chart-line"></i> Wydatki na daną kategorię dla okresu
+            <select id="select_first_month" name="select_first_month" class="custom-select"> {% set unique_months = [] %} {% for v in values[10] %} {% if v[0] not in unique_months %} <option class="bg-purple-400 font-semibold" value="{{ v[0] }}">{{ v[0] }}</option> {% set _ = unique_months.append(v[0]) %} {% endif %} {% endfor %} </select> - <select id="select_second_month" name="select_second_month" class="custom-select"> {% set unique_months = [] %} {% for v in values[10] %} {% if v[0] not in unique_months %} <option class="bg-purple-400 font-semibold" value="{{ v[0] }}">{{ v[0] }}</option> {% set _ = unique_months.append(v[0]) %} {% endif %} {% endfor %} </select>
+		</div>
+		<canvas class="m-4" id="DougnutCharMonthCategories"></canvas>
+	</div>
+     <script>
+    // Funkcja do obsługi wyboru pliku
+    function updateFileName(input) {
+        const fileName = input.files[0] ? input.files[0].name : 'Nie wybrano pliku';
+        const messageDiv = document.getElementById('file-selected-message');
+
+        document.getElementById('file-name').textContent = fileName;
+
+        if (input.files[0]) {
+            messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-800');
+            messageDiv.classList.add('bg-blue-100', 'text-blue-800');
+            messageDiv.textContent = `Wybrano plik: ${fileName}`;
+            messageDiv.classList.remove('hidden');
+
+            // Autoukrywanie komunikatu po 5 sekundach
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 5000);
+        } else {
+            messageDiv.classList.remove('bg-blue-100', 'text-blue-800');
+            messageDiv.classList.add('bg-red-100', 'text-red-800');
+            messageDiv.textContent = 'Odłączono plik';
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 3000);
+        }
+    }
+
+    // Inicjalizacja przy ładowaniu strony
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('file');
+        if(fileInput.files.length > 0) {
+            document.getElementById('file-name').textContent = fileInput.files[0].name;
+        }
+    });
+    </script>
+
     <script>
         // Send data to JS
         let values_to_js = {{ values | tojson }};
@@ -80,4 +113,5 @@
     <script type="module" src="{{ url_for('static', filename='difference_per_month_chart.js') }}"></script>
     <script type="module" src="{{ url_for('static', filename='category_chart.js') }}"></script>
     <script type="module" src="{{ url_for('static', filename='month_cat_chart.js') }}"></script>
+
 {% endblock %}
