@@ -52,51 +52,37 @@ def init_categorised_users_db():
 
 
 def save_csv_to_db(keys, last_date, file):
-    print("poszło")
     con = sqlite3.connect('database.db')
-    cur = con.cursor()
-    last_date = datetime.strptime(last_date, '%Y-%m-%d')
-
-    if file.filename == '':
-        print("No file selected")
-        return False
-
     try:
+        if file.filename == '':
+            flash('Nie wybrano pliku', 'error')
+            return False
+
         stream = io.StringIO(file.stream.read().decode("utf-8-sig"))
         csv_reader = csv.DictReader(stream)
         rows = list(csv_reader)
 
         if not rows:
-            print("Plik CSV jest pusty")
+            flash('Plik CSV jest pusty', 'error')
             return False
 
         last_row = rows[-1]
         first_date = datetime.strptime(last_row['Data transakcji'], "%Y-%m-%d")
+        last_date = datetime.strptime(last_date, "%Y-%m-%d")
 
         if first_date > last_date:
-            print(first_date)
-            print(last_date)
-
-            filtered_data = [
-                tuple(
-                    row.get(key, "")
-                    for key in keys
-                )
-                for row in rows
-            ]
-
-
-            cur.executemany("INSERT INTO data VALUES (NULL,?,?,?,?,?,?,?,?,?,?)", filtered_data)
+            filtered_data = [tuple(row[key] if key in row else "" for key in keys) for row in rows]
+            con.executemany("INSERT INTO data VALUES (NULL,?,?,?,?,?,?,?,?,?,?)", filtered_data)
             con.commit()
-            print("Data successfully added to the database")
+            flash('Dane zostały pomyślnie zapisane!', 'success')
             return True
         else:
-            print("Data already in database")
+            flash('Brak nowszych danych do zapisania', 'warning')
             return False
 
     except Exception as e:
-        print(f"Błąd zapisu: {str(e)}")
         con.rollback()
+        flash(f'Błąd podczas zapisu: {str(e)}', 'error')
         return False
     finally:
         con.close()
@@ -118,7 +104,7 @@ def show_data():
 
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM data")
+    cursor.execute("SELECT * FROM data ORDER BY transaction_date DESC")
     data = cursor.fetchall()
     return data
 
@@ -337,9 +323,13 @@ def main_site():
         if 'save_csv' in request.form:
             file = request.files.get("file")
             if file and file.filename.endswith(".csv"):
-                # Przekaż odpowiednie parametry
-                save_csv_to_db(keys[1:], last_date_from_db, file)  # keys[1:] pomija kolumnę "Id"
-                flash(f"Plik {file.filename} został poprawnie zapisany!", "success")
+                if save_csv_to_db(keys[1:], values[0], file):
+                    return redirect(url_for('main_site'))
+                else:
+                    return redirect(url_for('main_site'))
+            else:
+                flash('Nieprawidłowy format pliku', 'error')
+                return redirect(url_for('main_site'))
 
         elif 'to_edit' in request.form:
             return redirect(url_for('edit_categories_site'))
@@ -387,6 +377,7 @@ def categories_site():
                 else:
                     if value != '' and value != 'Zapisz kategorie' and value != 'Przejdź':
                         categories[key] = value
+            flash("Zapisano kategorie dla użytkoników", "success")
             save_categories_to_db(list(categories.keys()), list(categories.values()))
         elif 'to_edit_categories' in request.form:
             return redirect(url_for('edit_categories_site'))
@@ -424,7 +415,7 @@ def edit_categories_site():
                     if value != '' and value != 'Zapisz kategorie' and value != 'Przejdź':
                         categories[key] = value
             save_changed_categories(list(categories.keys()), list(categories.values()))
-            print("Zmiany zapisane do bazy danych!")
+            flash("Zmiany zapisane do bazy danych", "success")
 
 
     return render_template("edit_categories.html", values=values)

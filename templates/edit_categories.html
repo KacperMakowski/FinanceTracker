@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %} {% for category, message in messages %}
+            <div class="alert {{ 'bg-green-500' if category == 'success' else 'bg-red-500' }} text-white px-4 py-2 rounded-md my-2 text-center">
+	            {{ message }}
+            </div>
+        {% endfor %}
+        {% endif %}
+    {% endwith %}
     <h1 class="text-blue-600 drop-shadow-xs font-medium text-center text-4xl my-5">Edytuj kategorie użytkowników</h1>
     <div class="mx-auto py-[5vh] mb-[5vh] bg-gray-50 w-[95vw] border-3 border-blue-600 rounded-4xl shadow-xl">
         <form method="post" name="categories" id="categories">

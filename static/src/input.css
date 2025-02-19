@@ -16,6 +16,7 @@ input[type="submit"]
     @apply ring-2 ring-blue-500 ring-offset-2;
   }
 }
+
 .header
 {
    background: rgb(0, 81, 255);
