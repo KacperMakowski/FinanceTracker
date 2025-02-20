@@ -23,4 +23,17 @@ A web-based personal finance tracking application built with Flask and Chart.js 
 
 1. Clone the repository
 ```bash
-git clone <https://github.com/KacperMakowski/FinanceTracker/edit/master>
+git clone https://github.com/KacperMakowski/FinanceTracker
+
+2. Install required Python packages
+pip install -r requirements.txt
+
+3. Run the application
+
+## Usage
+
+### Importing Transactions
+
+2. Click the "Choose file" button on the dashboard
+3. Select transactions.csv
+4. Click "Save" to import the transactions
