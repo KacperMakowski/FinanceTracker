@@ -29,9 +29,7 @@ const data = {
                     pointRadius: 5,
                 }]
         };
-
-        // Tworzenie wykresu
-        const config = {
+ const config = {
             type: 'line',
             data: data,
             options: {

@@ -5,12 +5,12 @@ for(let i = 0; i < monthly_difference.length; i++)
 }
 
 const data = {
-            labels: months_debits_to_js, // Miesiące na osi X
+            labels: months_debits_to_js,
             datasets: [{
-                data: chart_difference, // Debety na osi Y
-                fill: false, // Bez wypełnienia pod wykresem
+                data: chart_difference,
+                fill: false,
                 borderColor: 'rgba(126,126,126,0.78)',
-                tension: 0.1, // Ustawienie wygładzenia linii
+                tension: 0.1,
                 pointRadius: 5,
                 pointBackgroundColor: chart_difference.map(value =>
             value > 0 ? 'rgba(255,107,125,1)' : 'rgba(215,0,141,1)'
@@ -19,9 +19,8 @@ const data = {
         };
 
 
-        // Tworzenie wykresu
         const config = {
-            type: 'line', // Typ wykresu - liniowy
+            type: 'line',
             data: data,
             options: {
                 responsive: true,
@@ -36,14 +35,14 @@ const data = {
                     tooltip: {
                         callbacks: {
                             label: function(tooltipItem) {
-                                return tooltipItem.raw.toFixed(2); // Formatowanie wartości
+                                return tooltipItem.raw.toFixed(2);
                             }
                         }
                     }
                 },
                 scales: {
                     y: {
-                        beginAtZero: true, // Oś Y zaczyna się od zera
+                        beginAtZero: true,
                 },
                     x: {
                       reverse: true
@@ -52,5 +51,4 @@ const data = {
             }
         };
 
-        // Renderowanie wykresu
         new Chart(document.getElementById('LineChartDifference'), config);
