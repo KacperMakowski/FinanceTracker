@@ -23,4 +23,4 @@ A web-based personal finance tracking application built with Flask and Chart.js 
 
 1. Clone the repository
 ```bash
-git clone <repository-url>
+git clone <https://github.com/KacperMakowski/FinanceTracker/edit/master>
