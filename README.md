@@ -58,18 +58,6 @@ The dashboard provides several visualizations:
 - Category-wise expense distribution
 - Period-specific category analysis
 
-
-## Screenshots
-
-- Main Dashboard with financial charts
-![image](https://github.com/user-attachments/assets/feaff7da-67b8-4aac-ad2c-3d53e30c4745)
-![image](https://github.com/user-attachments/assets/bc4fec24-ec25-4ae6-a587-6c4e7e792154)
-
-- Category management interface
-![image](https://github.com/user-attachments/assets/4cf850fd-8d26-40ae-aa41-b56c7d23ba1a)
-![image](https://github.com/user-attachments/assets/067807c1-a0b4-4de7-80dd-69c6ce72c4f2)
-
-
 ## Database Structure
 
 The application uses SQLite with two main tables:
